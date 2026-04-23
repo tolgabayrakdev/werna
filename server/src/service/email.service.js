@@ -1,12 +1,12 @@
-import transporter from "../config/mail.js";
-import env from "../config/env.js";
+import transporter from '../config/mail.js';
+import env from '../config/env.js';
 
 export class EmailService {
   async sendVerificationCode(email, code) {
     const mailOptions = {
       from: env.EMAIL_FROM,
       to: email,
-      subject: "Verify your account",
+      subject: 'Verify your account',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 24px; border: 1px solid #e0e0e0; border-radius: 8px;">
           <h2 style="text-align: center; color: #333;">Verify Your Account</h2>

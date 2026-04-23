@@ -1,6 +1,6 @@
-import pg from "pg";
-import env from "./env.js";
-import logger from "./logger.js";
+import pg from 'pg';
+import env from './env.js';
+import logger from './logger.js';
 
 const pool = new pg.Pool({
   host: env.DB_HOST,
@@ -13,7 +13,7 @@ const pool = new pg.Pool({
   connectionTimeoutMillis: 5000,
 });
 
-pool.on("error", (err) => {
+pool.on('error', (err) => {
   logger.error(`Unexpected error on idle client: ${err.message}`);
 });
 
@@ -23,7 +23,7 @@ export const testConnection = async () => {
   try {
     const client = await pool.connect();
     client.release();
-    logger.info("Database connected successfully");
+    logger.info('Database connected successfully');
   } catch (err) {
     logger.error(`Database connection failed: ${err.message}`);
   }

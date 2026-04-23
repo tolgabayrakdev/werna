@@ -1,4 +1,4 @@
-import { query } from "../config/db.js";
+import { query } from '../config/db.js';
 
 export class UserRepository {
   async findById(id) {
@@ -44,7 +44,7 @@ export class UserRepository {
 
     fields.push(`updated_at = NOW()`);
     const result = await query(
-      `UPDATE users SET ${fields.join(", ")} WHERE id = $1 RETURNING id, email, username, is_active, updated_at`,
+      `UPDATE users SET ${fields.join(', ')} WHERE id = $1 RETURNING id, email, username, is_active, updated_at`,
       values
     );
     return result.rows[0] || null;

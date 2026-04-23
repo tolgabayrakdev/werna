@@ -1,5 +1,5 @@
-import { AuthService } from "../service/auth.service.js";
-import { getAccessTokenCookieOptions, getRefreshTokenCookieOptions } from "../utils/token.js";
+import { AuthService } from '../service/auth.service.js';
+import { getAccessTokenCookieOptions, getRefreshTokenCookieOptions } from '../utils/token.js';
 
 export class AuthController {
   constructor() {
@@ -13,7 +13,7 @@ export class AuthController {
       res.status(201).json({
         success: true,
         data: result,
-        message: "Registration successful. Please verify your email.",
+        message: 'Registration successful. Please verify your email.',
       });
     } catch (err) {
       next(err);
@@ -28,7 +28,7 @@ export class AuthController {
       res.status(200).json({
         success: true,
         data: result,
-        message: "Email verified successfully. You can now login.",
+        message: 'Email verified successfully. You can now login.',
       });
     } catch (err) {
       next(err);
@@ -53,8 +53,8 @@ export class AuthController {
     try {
       const result = await this.authService.login(req.body);
 
-      res.cookie("accessToken", result.tokens.accessToken, getAccessTokenCookieOptions());
-      res.cookie("refreshToken", result.tokens.refreshToken, getRefreshTokenCookieOptions());
+      res.cookie('accessToken', result.tokens.accessToken, getAccessTokenCookieOptions());
+      res.cookie('refreshToken', result.tokens.refreshToken, getRefreshTokenCookieOptions());
 
       res.status(200).json({
         success: true,
@@ -70,16 +70,16 @@ export class AuthController {
       const token = req.cookies?.refreshToken;
       const result = await this.authService.refreshToken(token);
 
-      res.cookie("accessToken", result.tokens.accessToken, getAccessTokenCookieOptions());
-      res.cookie("refreshToken", result.tokens.refreshToken, getRefreshTokenCookieOptions());
+      res.cookie('accessToken', result.tokens.accessToken, getAccessTokenCookieOptions());
+      res.cookie('refreshToken', result.tokens.refreshToken, getRefreshTokenCookieOptions());
 
       res.status(200).json({
         success: true,
-        data: { message: "Tokens refreshed" },
+        data: { message: 'Tokens refreshed' },
       });
     } catch (err) {
-      res.clearCookie("accessToken", getAccessTokenCookieOptions());
-      res.clearCookie("refreshToken", getRefreshTokenCookieOptions());
+      res.clearCookie('accessToken', getAccessTokenCookieOptions());
+      res.clearCookie('refreshToken', getRefreshTokenCookieOptions());
       next(err);
     }
   };
@@ -89,12 +89,12 @@ export class AuthController {
       const refreshToken = req.cookies?.refreshToken;
       await this.authService.logout(req.user?.id, refreshToken);
 
-      res.clearCookie("accessToken", getAccessTokenCookieOptions());
-      res.clearCookie("refreshToken", getRefreshTokenCookieOptions());
+      res.clearCookie('accessToken', getAccessTokenCookieOptions());
+      res.clearCookie('refreshToken', getRefreshTokenCookieOptions());
 
       res.status(200).json({
         success: true,
-        data: { message: "Logged out successfully" },
+        data: { message: 'Logged out successfully' },
       });
     } catch (err) {
       next(err);

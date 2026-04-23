@@ -1,15 +1,15 @@
-import crypto from "crypto";
-import bcrypt from "bcryptjs";
-import { AuthRepository } from "../repository/auth.repository.js";
-import { EmailService } from "./email.service.js";
-import { ConflictError, UnauthorizedError, ValidationError } from "../exceptions/index.js";
+import crypto from 'crypto';
+import bcrypt from 'bcryptjs';
+import { AuthRepository } from '../repository/auth.repository.js';
+import { EmailService } from './email.service.js';
+import { ConflictError, UnauthorizedError, ValidationError } from '../exceptions/index.js';
 import {
   generateAccessToken,
   generateRefreshToken,
   verifyRefreshToken,
   parseDuration,
-} from "../utils/token.js";
-import env from "../config/env.js";
+} from '../utils/token.js';
+import env from '../config/env.js';
 
 const SALT_ROUNDS = 12;
 const VERIFICATION_CODE_EXPIRES = 10 * 60 * 1000;
@@ -23,15 +23,15 @@ export class AuthService {
   async register({ email, username, password }) {
     const existingUser = await this.authRepo.findUserByEmail(email);
     if (existingUser) {
-      throw new ConflictError("Email already registered");
+      throw new ConflictError('Email already registered');
     }
 
     const existingUsername = await this.authRepo.findUserByUsername(username);
     if (existingUsername) {
-      throw new ConflictError("Username already taken");
+      throw new ConflictError('Username already taken');
     }
 
-    const defaultRole = await this.authRepo.findRoleByName("user");
+    const defaultRole = await this.authRepo.findRoleByName('user');
     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
     const user = await this.authRepo.createUser({
@@ -58,16 +58,16 @@ export class AuthService {
   async verify({ userId, code }) {
     const user = await this.authRepo.findUserById(userId);
     if (!user) {
-      throw new ValidationError("User not found");
+      throw new ValidationError('User not found');
     }
 
     if (user.is_verified) {
-      throw new ValidationError("Account already verified");
+      throw new ValidationError('Account already verified');
     }
 
     const storedCode = await this.authRepo.findVerificationCode(userId, code);
     if (!storedCode) {
-      throw new ValidationError("Invalid or expired verification code");
+      throw new ValidationError('Invalid or expired verification code');
     }
 
     await this.authRepo.deleteVerificationCodesByUserId(userId);
@@ -79,11 +79,11 @@ export class AuthService {
   async resendVerificationCode(userId) {
     const user = await this.authRepo.findUserById(userId);
     if (!user) {
-      throw new ValidationError("User not found");
+      throw new ValidationError('User not found');
     }
 
     if (user.is_verified) {
-      throw new ValidationError("Account already verified");
+      throw new ValidationError('Account already verified');
     }
 
     await this.authRepo.deleteVerificationCodesByUserId(userId);
@@ -99,26 +99,26 @@ export class AuthService {
 
     await this.emailService.sendVerificationCode(user.email, code);
 
-    return { message: "Verification code resent" };
+    return { message: 'Verification code resent' };
   }
 
   async login({ email, password }) {
     const user = await this.authRepo.findUserByEmail(email);
     if (!user) {
-      throw new UnauthorizedError("Invalid email or password");
+      throw new UnauthorizedError('Invalid email or password');
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      throw new UnauthorizedError("Invalid email or password");
+      throw new UnauthorizedError('Invalid email or password');
     }
 
     if (!user.is_verified) {
-      throw new UnauthorizedError("Please verify your email first");
+      throw new UnauthorizedError('Please verify your email first');
     }
 
     if (!user.is_active) {
-      throw new UnauthorizedError("Account is deactivated");
+      throw new UnauthorizedError('Account is deactivated');
     }
 
     const tokenPayload = { id: user.id, email: user.email, role: user.role };
@@ -132,22 +132,22 @@ export class AuthService {
 
   async refreshToken(token) {
     if (!token) {
-      throw new UnauthorizedError("Refresh token missing");
+      throw new UnauthorizedError('Refresh token missing');
     }
 
     const storedToken = await this.authRepo.findRefreshToken(token);
     if (!storedToken) {
-      throw new UnauthorizedError("Invalid refresh token");
+      throw new UnauthorizedError('Invalid refresh token');
     }
 
     if (new Date(storedToken.expires_at) < new Date()) {
       await this.authRepo.deleteRefreshToken(token);
-      throw new UnauthorizedError("Refresh token expired");
+      throw new UnauthorizedError('Refresh token expired');
     }
 
     if (!storedToken.is_active) {
       await this.authRepo.deleteRefreshTokensByUserId(storedToken.user_id);
-      throw new UnauthorizedError("Account is deactivated");
+      throw new UnauthorizedError('Account is deactivated');
     }
 
     let decoded;
@@ -155,7 +155,7 @@ export class AuthService {
       decoded = verifyRefreshToken(token);
     } catch {
       await this.authRepo.deleteRefreshToken(token);
-      throw new UnauthorizedError("Invalid refresh token");
+      throw new UnauthorizedError('Invalid refresh token');
     }
 
     await this.authRepo.deleteRefreshToken(token);

@@ -1,4 +1,4 @@
-import { UserService } from "../service/user.service.js";
+import { UserService } from '../service/user.service.js';
 
 export class UserController {
   constructor() {
@@ -26,7 +26,10 @@ export class UserController {
   getAllUsers = async (req, res, next) => {
     try {
       const { page = 1, limit = 20 } = req.query;
-      const result = await this.userService.getAllUsers({ page: Number(page), limit: Number(limit) });
+      const result = await this.userService.getAllUsers({
+        page: Number(page),
+        limit: Number(limit),
+      });
       res.status(200).json({ success: true, data: result });
     } catch (err) {
       next(err);
@@ -36,7 +39,7 @@ export class UserController {
   deleteUser = async (req, res, next) => {
     try {
       await this.userService.deleteUser(req.params.id);
-      res.status(200).json({ success: true, data: { message: "User deleted" } });
+      res.status(200).json({ success: true, data: { message: 'User deleted' } });
     } catch (err) {
       next(err);
     }

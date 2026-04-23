@@ -1,4 +1,4 @@
-import Joi from "joi";
+import Joi from 'joi';
 
 export const updateProfileDto = Joi.object({
   username: Joi.string().alphanum().min(3).max(30),

@@ -1,4 +1,4 @@
-import { query } from "../config/db.js";
+import { query } from '../config/db.js';
 
 export class AuthRepository {
   async findUserByEmail(email) {
@@ -24,10 +24,7 @@ export class AuthRepository {
   }
 
   async findUserByUsername(username) {
-    const result = await query(
-      `SELECT u.id FROM users u WHERE u.username = $1`,
-      [username]
-    );
+    const result = await query(`SELECT u.id FROM users u WHERE u.username = $1`, [username]);
     return result.rows[0] || null;
   }
 

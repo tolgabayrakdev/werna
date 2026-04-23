@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "node --watch src/server.js"
+    "dev": "node --watch src/server.js",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "keywords": [],
   "author": "",
@@ -25,5 +27,8 @@
     "nodemailer": "^8.0.5",
     "pg": "^8.20.0",
     "winston": "^3.19.0"
+  },
+  "devDependencies": {
+    "prettier": "^3.8.3"
   }
 }

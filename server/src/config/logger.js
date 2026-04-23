@@ -1,8 +1,8 @@
-import winston from "winston";
-import env from "./env.js";
+import winston from 'winston';
+import env from './env.js';
 
 const logFormat = winston.format.combine(
-  winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+  winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
   winston.format.errors({ stack: true }),
   winston.format.printf(({ timestamp, level, message, stack }) => {
     if (stack) {
@@ -18,15 +18,15 @@ const transports = [
   }),
 ];
 
-if (env.NODE_ENV === "production") {
+if (env.NODE_ENV === 'production') {
   transports.push(
-    new winston.transports.File({ filename: "logs/error.log", level: "error" }),
-    new winston.transports.File({ filename: "logs/combined.log" })
+    new winston.transports.File({ filename: 'logs/error.log', level: 'error' }),
+    new winston.transports.File({ filename: 'logs/combined.log' })
   );
 }
 
 const logger = winston.createLogger({
-  level: env.NODE_ENV === "development" ? "debug" : "info",
+  level: env.NODE_ENV === 'development' ? 'debug' : 'info',
   format: logFormat,
   transports,
   exitOnError: false,

@@ -1,5 +1,5 @@
-import jwt from "jsonwebtoken";
-import env from "../config/env.js";
+import jwt from 'jsonwebtoken';
+import env from '../config/env.js';
 
 export const generateAccessToken = (payload) => {
   return jwt.sign(payload, env.JWT_ACCESS_SECRET, {
@@ -33,17 +33,17 @@ export const parseDuration = (duration) => {
 export const getAccessTokenCookieOptions = () => ({
   httpOnly: true,
   secure: env.COOKIE_SECURE,
-  sameSite: "strict",
+  sameSite: 'strict',
   maxAge: parseDuration(env.JWT_ACCESS_EXPIRES_IN),
-  path: "/",
+  path: '/',
   domain: env.COOKIE_DOMAIN || undefined,
 });
 
 export const getRefreshTokenCookieOptions = () => ({
   httpOnly: true,
   secure: env.COOKIE_SECURE,
-  sameSite: "strict",
+  sameSite: 'strict',
   maxAge: parseDuration(env.JWT_REFRESH_EXPIRES_IN),
-  path: "/api/auth/refresh",
+  path: '/api/auth/refresh',
   domain: env.COOKIE_DOMAIN || undefined,
 });
