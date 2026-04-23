@@ -1,5 +1,6 @@
 import pg from "pg";
 import env from "./env.js";
+import logger from "./logger.js";
 
 const pool = new pg.Pool({
   host: env.DB_HOST,
@@ -13,9 +14,19 @@ const pool = new pg.Pool({
 });
 
 pool.on("error", (err) => {
-  console.error("Unexpected error on idle client", err);
-  process.exit(-1);
+  logger.error(`Unexpected error on idle client: ${err.message}`);
 });
 
 export const query = (text, params) => pool.query(text, params);
+
+export const testConnection = async () => {
+  try {
+    const client = await pool.connect();
+    client.release();
+    logger.info("Database connected successfully");
+  } catch (err) {
+    logger.error(`Database connection failed: ${err.message}`);
+  }
+};
+
 export default pool;
