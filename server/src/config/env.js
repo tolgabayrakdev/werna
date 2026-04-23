@@ -1,4 +1,7 @@
+import dotenv from 'dotenv';
 import Joi from 'joi';
+
+dotenv.config();
 
 const envSchema = Joi.object({
   PORT: Joi.number().default(5000),
@@ -12,7 +15,7 @@ const envSchema = Joi.object({
   JWT_REFRESH_SECRET: Joi.string().required(),
   JWT_ACCESS_EXPIRES_IN: Joi.string().default('15m'),
   JWT_REFRESH_EXPIRES_IN: Joi.string().default('7d'),
-  COOKIE_DOMAIN: Joi.string().default(''),
+  COOKIE_DOMAIN: Joi.string().allow('').default(''),
   COOKIE_SECURE: Joi.boolean().default(false),
   SMTP_HOST: Joi.string().required(),
   SMTP_PORT: Joi.number().default(587),

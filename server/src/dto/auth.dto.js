@@ -20,5 +20,6 @@ export const verifyDto = Joi.object({
 });
 
 export const resendVerificationDto = Joi.object({
-  userId: Joi.string().uuid().required(),
-});
+  userId: Joi.string().uuid(),
+  email: Joi.string().email(),
+}).or('userId', 'email');

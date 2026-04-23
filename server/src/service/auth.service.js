@@ -102,6 +102,32 @@ export class AuthService {
     return { message: 'Verification code resent' };
   }
 
+  async resendVerificationByEmail(email) {
+    const user = await this.authRepo.findUserByEmail(email);
+    if (!user) {
+      throw new ValidationError('No account found with this email');
+    }
+
+    if (user.is_verified) {
+      throw new ValidationError('Account already verified');
+    }
+
+    await this.authRepo.deleteVerificationCodesByUserId(user.id);
+
+    const code = this._generateCode();
+    const expiresAt = new Date(Date.now() + VERIFICATION_CODE_EXPIRES);
+
+    await this.authRepo.saveVerificationCode({
+      userId: user.id,
+      code,
+      expiresAt,
+    });
+
+    await this.emailService.sendVerificationCode(user.email, code);
+
+    return { userId: user.id, message: 'Verification code resent' };
+  }
+
   async login({ email, password }) {
     const user = await this.authRepo.findUserByEmail(email);
     if (!user) {

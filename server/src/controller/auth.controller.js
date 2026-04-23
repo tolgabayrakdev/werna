@@ -37,8 +37,10 @@ export class AuthController {
 
   resendVerificationCode = async (req, res, next) => {
     try {
-      const { userId } = req.body;
-      const result = await this.authService.resendVerificationCode(userId);
+      const { userId, email } = req.body;
+      const result = userId
+        ? await this.authService.resendVerificationCode(userId)
+        : await this.authService.resendVerificationByEmail(email);
 
       res.status(200).json({
         success: true,
