@@ -12,7 +12,12 @@ router.use(accountLimiter);
 
 router.get('/me', authenticate, accountController.getProfile);
 router.patch('/me', authenticate, accountController.updateProfile);
-router.patch('/me/password', authenticate, validate(updatePasswordSchema), accountController.updatePassword);
+router.patch(
+  '/me/password',
+  authenticate,
+  validate(updatePasswordSchema),
+  accountController.updatePassword
+);
 router.delete('/me', authenticate, accountController.deleteAccount);
 
 export default router;

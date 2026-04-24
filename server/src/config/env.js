@@ -2,7 +2,17 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const required = ['DB_HOST', 'DB_NAME', 'DB_USER', 'DB_PASSWORD', 'JWT_ACCESS_SECRET', 'JWT_REFRESH_SECRET', 'SMTP_HOST', 'SMTP_USER', 'SMTP_PASS'];
+const required = [
+  'DB_HOST',
+  'DB_NAME',
+  'DB_USER',
+  'DB_PASSWORD',
+  'JWT_ACCESS_SECRET',
+  'JWT_REFRESH_SECRET',
+  'SMTP_HOST',
+  'SMTP_USER',
+  'SMTP_PASS',
+];
 
 for (const key of required) {
   if (!process.env[key]) {
