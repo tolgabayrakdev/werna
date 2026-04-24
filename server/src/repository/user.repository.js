@@ -12,32 +12,22 @@ export class UserRepository {
     return result.rows[0] || null;
   }
 
-  async findAll({ page = 1, limit = 20 } = {}) {
-    const offset = (page - 1) * limit;
-    const data = await query(
-      `SELECT u.id, u.email, u.username, u.is_active, u.created_at, u.updated_at, r.name as role
-       FROM users u
-       JOIN roles r ON u.role_id = r.id
-       ORDER BY u.created_at DESC
-       LIMIT $1 OFFSET $2`,
-      [limit, offset]
-    );
-    const count = await query(`SELECT COUNT(*) FROM users`);
-    return { users: data.rows, total: parseInt(count.rows[0].count, 10), page, limit };
-  }
-
-  async updateById(id, { username, email } = {}) {
+  async updateById(id, data) {
     const fields = [];
     const values = [id];
     let paramIndex = 2;
 
-    if (username !== undefined) {
+    if (data.username !== undefined) {
       fields.push(`username = $${paramIndex++}`);
-      values.push(username);
+      values.push(data.username);
     }
-    if (email !== undefined) {
+    if (data.email !== undefined) {
       fields.push(`email = $${paramIndex++}`);
-      values.push(email);
+      values.push(data.email);
+    }
+    if (data.password !== undefined) {
+      fields.push(`password = $${paramIndex++}`);
+      values.push(data.password);
     }
 
     if (fields.length === 0) return null;
