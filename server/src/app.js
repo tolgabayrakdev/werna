@@ -12,14 +12,16 @@ import logger from './config/logger.js';
 const app = express();
 
 app.use(helmet());
-app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
-  credentials: true,
-}));
 app.use(
-  morgan('dev', {
-    stream: { write: (msg) => logger.http(msg.trim()) },
-  })
+    cors({
+        origin: process.env.CLIENT_URL || 'http://localhost:5173',
+        credentials: true,
+    })
+);
+app.use(
+    morgan('dev', {
+        stream: { write: (msg) => logger.http(msg.trim()) },
+    })
 );
 app.use(express.json());
 app.use(cookieParser());
@@ -29,7 +31,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 
 app.use((_req, res) => {
-  res.status(404).json({ success: false, message: 'Route not found' });
+    res.status(404).json({ success: false, message: 'Route not found' });
 });
 
 app.use(errorHandler);

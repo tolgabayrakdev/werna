@@ -13,9 +13,9 @@ router.use(authLimiter);
 router.post('/register', validate(registerDto), authController.register);
 router.post('/verify', validate(verifyDto), authController.verify);
 router.post(
-  '/resend-verification',
-  validate(resendVerificationDto),
-  authController.resendVerificationCode
+    '/resend-verification',
+    validate(resendVerificationDto),
+    authController.resendVerificationCode
 );
 router.post('/login', validate(loginDto), authController.login);
 router.post('/refresh', authController.refreshToken);
