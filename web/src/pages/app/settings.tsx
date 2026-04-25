@@ -18,8 +18,8 @@ export default function Settings() {
                     <h2 className="text-lg font-medium">Profil Bilgileri</h2>
                     <div className="grid gap-4">
                         <div className="space-y-2">
-                            <Label htmlFor="name">Ad</Label>
-                            <Input id="name" defaultValue={user?.name} className="h-10" />
+                            <Label htmlFor="username">Kullanıcı Adı</Label>
+                            <Input id="username" defaultValue={user?.username} className="h-10" />
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="email">E-posta</Label>

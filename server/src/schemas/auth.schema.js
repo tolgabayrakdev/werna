@@ -12,7 +12,7 @@ export const loginSchema = Joi.object({
 });
 
 export const verifySchema = Joi.object({
-  userId: Joi.string().uuid().required(),
+  email: Joi.string().email().required(),
   code: Joi.string()
     .length(6)
     .pattern(/^\d{6}$/)

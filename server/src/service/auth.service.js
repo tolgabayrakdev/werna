@@ -40,22 +40,11 @@ export class AuthService {
       roleId: defaultRole.id,
     });
 
-    const code = this._generateCode();
-    const expiresAt = new Date(Date.now() + VERIFICATION_CODE_EXPIRES);
-
-    await this.authRepo.saveVerificationCode({
-      userId: user.id,
-      code,
-      expiresAt,
-    });
-
-    eventEmitter.emit('send-verification-code', { email, code });
-
     return { id: user.id, email: user.email, username: user.username };
   }
 
-  async verify({ userId, code }) {
-    const user = await this.authRepo.findUserById(userId);
+  async verify({ email, code }) {
+    const user = await this.authRepo.findUserByEmail(email);
     if (!user) {
       throw new ValidationError('User not found');
     }
@@ -64,13 +53,13 @@ export class AuthService {
       throw new ValidationError('Account already verified');
     }
 
-    const storedCode = await this.authRepo.findVerificationCode(userId, code);
+    const storedCode = await this.authRepo.findVerificationCode(user.id, code);
     if (!storedCode) {
       throw new ValidationError('Invalid or expired verification code');
     }
 
-    await this.authRepo.deleteVerificationCodesByUserId(userId);
-    await this.authRepo.verifyUser(userId);
+    await this.authRepo.deleteVerificationCodesByUserId(user.id);
+    await this.authRepo.verifyUser(user.id);
 
     return { id: user.id, email: user.email, username: user.username, isVerified: true };
   }
@@ -139,6 +128,11 @@ export class AuthService {
     }
 
     if (!user.is_verified) {
+      await this.authRepo.deleteVerificationCodesByUserId(user.id);
+      const code = this._generateCode();
+      const expiresAt = new Date(Date.now() + VERIFICATION_CODE_EXPIRES);
+      await this.authRepo.saveVerificationCode({ userId: user.id, code, expiresAt });
+      eventEmitter.emit('send-verification-code', { email: user.email, code });
       throw new UnauthorizedError('Please verify your email first');
     }
 

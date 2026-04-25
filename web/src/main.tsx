@@ -4,12 +4,13 @@ import './index.css'
 import { createBrowserRouter, RouterProvider } from 'react-router'
 import { Toaster } from '@/components/ui/sonner'
 
-import SignIn from '@/pages/auth/sign-in'
-import SignUp from '@/pages/auth/sign-up'
-import ForgotPassword from '@/pages/auth/forgot-password'
-import AppLayout from '@/layouts/app-layout'
-import AppIndex from '@/pages/app/index'
-import Settings from '@/pages/app/settings'
+import SignIn from "@/pages/auth/sign-in"
+import SignUp from "@/pages/auth/sign-up"
+import ForgotPassword from "@/pages/auth/forgot-password"
+import VerifyEmail from "@/pages/auth/verify-email"
+import AppLayout from "@/layouts/app-layout"
+import AppIndex from "@/pages/app/index"
+import Settings from "@/pages/app/settings"
 
 const router = createBrowserRouter([
     {
@@ -23,6 +24,10 @@ const router = createBrowserRouter([
     {
         path: "/forgot-password",
         element: <ForgotPassword />
+    },
+    {
+        path: "/verify-email",
+        element: <VerifyEmail />
     },
     {
         path: "/",

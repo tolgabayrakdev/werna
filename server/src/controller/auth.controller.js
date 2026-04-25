@@ -22,8 +22,8 @@ export class AuthController {
 
   verify = async (req, res, next) => {
     try {
-      const { userId, code } = req.body;
-      const result = await this.authService.verify({ userId, code });
+      const { email, code } = req.body;
+      const result = await this.authService.verify({ email, code });
 
       res.status(200).json({
         success: true,
