@@ -1,12 +1,18 @@
 import env from "@/config/env"
+import { toast } from "sonner"
 
 export class ApiClientError extends Error {
+  status: number
+  data: { message?: string }
+
   constructor(
-    public status: number,
-    public data: { message?: string },
+    status: number,
+    data: { message?: string },
     message?: string
   ) {
     super(message ?? data.message ?? "Request failed")
+    this.status = status
+    this.data = data
   }
 }
 
@@ -23,6 +29,12 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const data = await res.json()
 
   if (!res.ok) {
+    if (res.status === 401 && path !== "/api/auth/refresh") {
+      window.dispatchEvent(new CustomEvent("auth:session-expired"))
+    }
+    if (res.status === 429) {
+      toast.error("Çok fazla istek gönderildi. Lütfen bir süre bekleyin.")
+    }
     throw new ApiClientError(res.status, data)
   }
 
