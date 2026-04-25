@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { apiClient, ApiClientError } from "@/lib/api-client"
+import { AuthLeftPanel } from "@/components/auth-left-panel"
 
 export default function ForgotPassword() {
   const [loading, setLoading] = useState(false)
@@ -29,21 +30,10 @@ export default function ForgotPassword() {
   if (sent) {
     return (
       <div className="min-h-screen grid lg:grid-cols-2">
-        <div className="hidden lg:flex flex-col justify-between bg-primary p-12 text-primary-foreground">
-          <div>
-            <h1 className="text-3xl font-semibold tracking-tight">Werna</h1>
-            <p className="text-primary-foreground/70 mt-2">Şifre sıfırlama</p>
-          </div>
-          <div className="space-y-4">
-            <h2 className="text-4xl font-semibold leading-tight">
-              Kodunuz<br />gönderildi!
-            </h2>
-            <p className="text-primary-foreground/70 max-w-md">
-              E-posta adresinize bir doğrulama kodu gönderildi.
-            </p>
-          </div>
-          <p className="text-sm text-primary-foreground/50">© 2024 Werna. Tüm hakları saklıdır.</p>
-        </div>
+        <AuthLeftPanel
+          heading={<>Kodunuz<br />gönderildi!</>}
+          description="E-posta adresinize bir doğrulama kodu gönderdik. Gelen kutunuzu kontrol edin."
+        />
 
         <div className="flex items-center justify-center p-8">
           <div className="w-full max-w-md space-y-8 text-center">
@@ -75,21 +65,10 @@ export default function ForgotPassword() {
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
-      <div className="hidden lg:flex flex-col justify-between bg-primary p-12 text-primary-foreground">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Werna</h1>
-          <p className="text-primary-foreground/70 mt-2">Şifre sıfırlama</p>
-        </div>
-        <div className="space-y-4">
-          <h2 className="text-4xl font-semibold leading-tight">
-            Şifrenizi mi<br />unuttunuz?
-          </h2>
-          <p className="text-primary-foreground/70 max-w-md">
-            Endişelenmeyin, e-posta adresinizi girerek şifrenizi sıfırlayabilirsiniz.
-          </p>
-        </div>
-        <p className="text-sm text-primary-foreground/50">© 2024 Werna. Tüm hakları saklıdır.</p>
-      </div>
+      <AuthLeftPanel
+        heading={<>Şifrenizi mi<br />unuttunuz?</>}
+        description="Endişelenmeyin, e-posta adresinizi girerek şifrenizi kolayca sıfırlayabilirsiniz."
+      />
 
       <div className="flex items-center justify-center p-8">
         <div className="w-full max-w-md space-y-8">

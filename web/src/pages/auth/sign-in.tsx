@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { PasswordInput } from "@/components/ui/password-input"
 import { useAuthStore } from "@/store/auth-store"
 import { apiClient, ApiClientError } from "@/lib/api-client"
+import { AuthLeftPanel } from "@/components/auth-left-panel"
 
 const RESEND_COOLDOWN = 90
 
@@ -81,28 +82,13 @@ export default function SignIn() {
     }
   }
 
-  const leftPanel = (subtitle: string, heading: React.ReactNode, body: string) => (
-    <div className="hidden lg:flex flex-col justify-between bg-primary p-12 text-primary-foreground">
-      <div>
-        <h1 className="text-3xl font-semibold tracking-tight">Werna</h1>
-        <p className="text-primary-foreground/70 mt-2">{subtitle}</p>
-      </div>
-      <div className="space-y-4">
-        <h2 className="text-4xl font-semibold leading-tight">{heading}</h2>
-        <p className="text-primary-foreground/70 max-w-md">{body}</p>
-      </div>
-      <p className="text-sm text-primary-foreground/50">© 2024 Werna. Tüm hakları saklıdır.</p>
-    </div>
-  )
-
   if (step === "verify") {
     return (
       <div className="min-h-screen grid lg:grid-cols-2">
-        {leftPanel(
-          "E-posta doğrulama",
-          <>Hesabınızı<br />doğrulayın</>,
-          "E-posta adresinize gönderilen 6 haneli kodu girin."
-        )}
+        <AuthLeftPanel
+          heading={<>Hesabınızı<br />doğrulayın</>}
+          description="E-posta adresinize gönderilen 6 haneli kodu girerek kimliğinizi doğrulayın."
+        />
 
         <div className="flex items-center justify-center p-8">
           <div className="w-full max-w-md space-y-8">
@@ -178,11 +164,10 @@ export default function SignIn() {
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
-      {leftPanel(
-        "Hoş geldiniz",
-        <>İşinizi dijital<br />dünyaya taşıyın</>,
-        "Modern ve güvenli platformumuz ile iş süreçlerinizi optimize edin."
-      )}
+      <AuthLeftPanel
+        heading={<>İşinizi dijital<br />dünyaya taşıyın</>}
+        description="Modern ve güvenli platformumuz ile iş süreçlerinizi optimize edin, verimliliğinizi artırın."
+      />
 
       <div className="flex items-center justify-center p-8">
         <div className="w-full max-w-md space-y-8">
