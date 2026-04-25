@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Outlet, Link, useLocation } from "react-router"
 import { useAuthStore } from "@/store/auth-store"
 import AuthProvider from "@/providers/auth-provider"
@@ -60,7 +60,7 @@ function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: SidebarProp
 
   useEffect(() => {
     onMobileClose()
-  }, [location.pathname])
+  }, [location.pathname, onMobileClose])
 
   const initials = user?.username?.slice(0, 2).toUpperCase() ?? "??"
 
@@ -186,6 +186,8 @@ export default function AppLayout() {
   const [collapsed, setCollapsed] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
 
+  const handleMobileClose = useCallback(() => setMobileOpen(false), [])
+
   return (
     <AuthProvider>
       <div className="min-h-screen flex">
@@ -193,7 +195,7 @@ export default function AppLayout() {
         {mobileOpen && (
           <div
             className="fixed inset-0 z-30 bg-black/50 backdrop-blur-sm lg:hidden"
-            onClick={() => setMobileOpen(false)}
+            onClick={handleMobileClose}
           />
         )}
 
@@ -201,7 +203,7 @@ export default function AppLayout() {
           collapsed={collapsed}
           onToggle={() => setCollapsed((c) => !c)}
           mobileOpen={mobileOpen}
-          onMobileClose={() => setMobileOpen(false)}
+          onMobileClose={handleMobileClose}
         />
 
         <div className="flex-1 min-w-0 flex flex-col">
