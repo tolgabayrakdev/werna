@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { apiClient, ApiClientError } from "@/lib/api-client"
 import { AuthLeftPanel } from "@/components/auth-left-panel"
+import wernaLogo from "@/assets/werna_logo.svg"
 
 export default function ForgotPassword() {
   const [loading, setLoading] = useState(false)
@@ -37,7 +38,10 @@ export default function ForgotPassword() {
         <div className="flex items-center justify-center p-8">
           <div className="w-full max-w-md space-y-8 text-center">
             <div className="lg:hidden">
-              <h1 className="text-2xl font-semibold tracking-tight">Werna</h1>
+              <div className="flex items-center justify-center gap-2">
+                <img src={wernaLogo} alt="Werna" className="h-8 w-auto" />
+                <span className="text-2xl font-semibold tracking-tight">Werna</span>
+              </div>
             </div>
 
             <div className="flex flex-col items-center gap-4">

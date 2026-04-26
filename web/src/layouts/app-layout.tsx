@@ -23,6 +23,7 @@ import {
   Menu,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import wernaLogo from "@/assets/werna_logo.svg"
 
 const navItems = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -84,14 +85,16 @@ function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: SidebarProp
         )}
       >
         {/* Mobile: always show logo */}
-        <span className={cn("text-lg font-semibold tracking-tight select-none lg:hidden")}>
-          Werna
-        </span>
+        <div className="flex items-center gap-2 lg:hidden">
+          <img src={wernaLogo} alt="Werna" className="h-7 w-auto" />
+          <span className="text-lg font-semibold tracking-tight select-none">Werna</span>
+        </div>
         {/* Desktop: hide when collapsed */}
         {!collapsed && (
-          <span className="text-lg font-semibold tracking-tight select-none hidden lg:block">
-            Werna
-          </span>
+          <div className="hidden lg:flex items-center gap-2">
+            <img src={wernaLogo} alt="Werna" className="h-7 w-auto" />
+            <span className="text-lg font-semibold tracking-tight select-none">Werna</span>
+          </div>
         )}
         {/* Desktop collapse toggle */}
         <Button
@@ -214,7 +217,10 @@ export default function AppLayout() {
             <Button variant="ghost" size="icon" className="size-8" onClick={() => setMobileOpen(true)}>
               <Menu className="size-4" />
             </Button>
-            <span className="text-base font-semibold tracking-tight">Werna</span>
+            <div className="flex items-center gap-2">
+              <img src={wernaLogo} alt="Werna" className="h-6 w-auto" />
+              <span className="text-base font-semibold tracking-tight">Werna</span>
+            </div>
           </header>
 
           <main className="flex-1 bg-background overflow-auto">

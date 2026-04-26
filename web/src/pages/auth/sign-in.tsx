@@ -8,6 +8,7 @@ import { PasswordInput } from "@/components/ui/password-input"
 import { useAuthStore } from "@/store/auth-store"
 import { apiClient, ApiClientError } from "@/lib/api-client"
 import { AuthLeftPanel } from "@/components/auth-left-panel"
+import wernaLogo from "@/assets/werna_logo.svg"
 
 const RESEND_COOLDOWN = 90
 
@@ -16,8 +17,9 @@ export default function SignIn() {
   const login = useAuthStore((state) => state.login)
 
   const [loading, setLoading] = useState(false)
-  const [email, setEmail] = useState("")
+  const [email, setEmail] = useState(() => localStorage.getItem("remembered_email") ?? "")
   const [password, setPassword] = useState("")
+  const [rememberMe, setRememberMe] = useState(() => !!localStorage.getItem("remembered_email"))
 
   const [step, setStep] = useState<"login" | "verify">("login")
   const [code, setCode] = useState("")
@@ -48,6 +50,11 @@ export default function SignIn() {
     setLoading(true)
     try {
       await login(email, password)
+      if (rememberMe) {
+        localStorage.setItem("remembered_email", email)
+      } else {
+        localStorage.removeItem("remembered_email")
+      }
       toast.success("Giriş başarılı")
       navigate("/", { replace: true })
     } catch (error) {
@@ -93,7 +100,10 @@ export default function SignIn() {
         <div className="flex items-center justify-center p-8">
           <div className="w-full max-w-md space-y-8">
             <div className="lg:hidden text-center">
-              <h1 className="text-2xl font-semibold tracking-tight">Werna</h1>
+              <div className="flex items-center justify-center gap-2">
+                <img src={wernaLogo} alt="Werna" className="h-8 w-auto" />
+                <span className="text-2xl font-semibold tracking-tight">Werna</span>
+              </div>
               <p className="text-sm text-muted-foreground mt-1">E-posta doğrulama</p>
             </div>
 
@@ -209,6 +219,19 @@ export default function SignIn() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
+            </div>
+
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="rememberMe"
+                className="h-4 w-4 rounded border-input accent-primary cursor-pointer"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+              />
+              <Label htmlFor="rememberMe" className="text-sm font-normal cursor-pointer">
+                Beni hatırla
+              </Label>
             </div>
 
             <Button type="submit" className="w-full h-11" disabled={loading}>

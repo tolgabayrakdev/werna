@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { PasswordInput } from "@/components/ui/password-input"
 import { apiClient, ApiClientError } from "@/lib/api-client"
 import { AuthLeftPanel } from "@/components/auth-left-panel"
+import wernaLogo from "@/assets/werna_logo.svg"
 
 export default function ResetPassword() {
   const navigate = useNavigate()
@@ -61,7 +62,10 @@ export default function ResetPassword() {
       <div className="flex items-center justify-center p-8">
         <div className="w-full max-w-md space-y-8">
           <div className="lg:hidden text-center">
-            <h1 className="text-2xl font-semibold tracking-tight">Werna</h1>
+            <div className="flex items-center justify-center gap-2">
+              <img src={wernaLogo} alt="Werna" className="h-8 w-auto" />
+              <span className="text-2xl font-semibold tracking-tight">Werna</span>
+            </div>
             <p className="text-sm text-muted-foreground mt-1">Şifre sıfırlama</p>
           </div>
 
