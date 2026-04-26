@@ -2,7 +2,7 @@ import { create } from "zustand"
 import { apiClient, ApiClientError } from "@/lib/api-client"
 import env from "@/config/env"
 
-interface User {
+export interface User {
   id: string
   email: string
   username: string
@@ -61,11 +61,11 @@ export const useAuthStore = create<AuthState>()((set) => ({
     set({ loading: true })
     try {
       const res = await apiClient.get<{ success: boolean; data: User }>("/api/account/me")
-      set({ user: res.data, isAuthenticated: true, loading: false })
+      set({ user: res.data, isAuthenticated: true, loading: false, rateLimited: false })
       return true
     } catch (error) {
       if (error instanceof ApiClientError && error.status === 401) {
-        set({ loading: false, sessionExpired: true })
+        set({ loading: false })
         return false
       }
       if (error instanceof ApiClientError && error.status === 429) {

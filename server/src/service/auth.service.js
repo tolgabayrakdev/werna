@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import { AuthRepository } from '../repository/auth.repository.js';
+import { UserRepository } from '../repository/user.repository.js';
 import { eventEmitter } from '../utils/events.js';
 import { ConflictError, UnauthorizedError, ValidationError } from '../exceptions/index.js';
 import {
@@ -13,10 +14,12 @@ import env from '../config/env.js';
 
 const SALT_ROUNDS = 12;
 const VERIFICATION_CODE_EXPIRES = 10 * 60 * 1000;
+const RESET_TOKEN_EXPIRES = 60 * 60 * 1000;
 
 export class AuthService {
   constructor() {
     this.authRepo = new AuthRepository();
+    this.userRepo = new UserRepository();
   }
 
   async register({ email, username, password }) {
@@ -183,6 +186,31 @@ export class AuthService {
     const tokens = await this._generateTokens(tokenPayload, storedToken.user_id);
 
     return { tokens };
+  }
+
+  async forgotPassword(email) {
+    const user = await this.authRepo.findUserByEmail(email);
+    if (!user || !user.is_verified) return;
+
+    await this.authRepo.deletePasswordResetTokensByUserId(user.id);
+
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + RESET_TOKEN_EXPIRES);
+
+    await this.authRepo.savePasswordResetToken({ userId: user.id, token, expiresAt });
+    eventEmitter.emit('send-password-reset', { email: user.email, token });
+  }
+
+  async resetPassword(token, newPassword) {
+    const resetToken = await this.authRepo.findPasswordResetToken(token);
+    if (!resetToken) {
+      throw new ValidationError('Invalid or expired reset link');
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
+    await this.userRepo.updateById(resetToken.user_id, { password: hashedPassword });
+    await this.authRepo.markPasswordResetTokenUsed(resetToken.id);
+    await this.authRepo.deleteRefreshTokensByUserId(resetToken.user_id);
   }
 
   async logout(userId, refreshToken) {

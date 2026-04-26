@@ -23,3 +23,12 @@ export const resendVerificationSchema = Joi.object({
   userId: Joi.string().uuid(),
   email: Joi.string().email(),
 }).or('userId', 'email');
+
+export const forgotPasswordSchema = Joi.object({
+  email: Joi.string().email().required(),
+});
+
+export const resetPasswordSchema = Joi.object({
+  token: Joi.string().length(64).required(),
+  newPassword: Joi.string().min(8).max(128).required(),
+});

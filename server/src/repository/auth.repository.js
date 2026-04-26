@@ -96,4 +96,28 @@ export class AuthRepository {
   async deleteRefreshTokensByUserId(userId) {
     await query(`DELETE FROM refresh_tokens WHERE user_id = $1`, [userId]);
   }
+
+  async savePasswordResetToken({ userId, token, expiresAt }) {
+    const result = await query(
+      `INSERT INTO password_reset_tokens (user_id, token, expires_at) VALUES ($1, $2, $3) RETURNING id`,
+      [userId, token, expiresAt]
+    );
+    return result.rows[0];
+  }
+
+  async findPasswordResetToken(token) {
+    const result = await query(
+      `SELECT id, user_id, expires_at FROM password_reset_tokens WHERE token = $1 AND expires_at > NOW() AND used_at IS NULL`,
+      [token]
+    );
+    return result.rows[0] || null;
+  }
+
+  async markPasswordResetTokenUsed(id) {
+    await query(`UPDATE password_reset_tokens SET used_at = NOW() WHERE id = $1`, [id]);
+  }
+
+  async deletePasswordResetTokensByUserId(userId) {
+    await query(`DELETE FROM password_reset_tokens WHERE user_id = $1`, [userId]);
+  }
 }

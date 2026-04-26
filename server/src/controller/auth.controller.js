@@ -86,6 +86,31 @@ export class AuthController {
     }
   };
 
+  forgotPassword = async (req, res, next) => {
+    try {
+      await this.authService.forgotPassword(req.body.email);
+      res.status(200).json({
+        success: true,
+        data: { message: 'If this email exists, a reset link has been sent' },
+      });
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  resetPassword = async (req, res, next) => {
+    try {
+      const { token, newPassword } = req.body;
+      await this.authService.resetPassword(token, newPassword);
+      res.status(200).json({
+        success: true,
+        data: { message: 'Password reset successful' },
+      });
+    } catch (err) {
+      next(err);
+    }
+  };
+
   logout = async (req, res, next) => {
     try {
       const refreshToken = req.cookies?.refreshToken;

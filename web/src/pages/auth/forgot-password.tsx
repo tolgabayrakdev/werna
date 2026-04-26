@@ -16,12 +16,11 @@ export default function ForgotPassword() {
     e.preventDefault()
     setLoading(true)
     try {
-      await apiClient.post("/api/auth/resend-verification", { email })
+      await apiClient.post("/api/auth/forgot-password", { email })
       setSent(true)
-      toast.success("Doğrulama kodu gönderildi")
     } catch (error) {
-      const message = error instanceof ApiClientError ? error.data.message : "Kod gönderilemedi"
-      toast.error(message || "Kod gönderilemedi")
+      const message = error instanceof ApiClientError ? error.data.message : "İstek gönderilemedi"
+      toast.error(message || "İstek gönderilemedi")
     } finally {
       setLoading(false)
     }
@@ -31,32 +30,40 @@ export default function ForgotPassword() {
     return (
       <div className="min-h-screen grid lg:grid-cols-2">
         <AuthLeftPanel
-          heading={<>Kodunuz<br />gönderildi!</>}
-          description="E-posta adresinize bir doğrulama kodu gönderdik. Gelen kutunuzu kontrol edin."
+          heading={<>Bağlantı<br />gönderildi!</>}
+          description="E-posta adresinize şifre sıfırlama bağlantısı gönderdik. Gelen kutunuzu kontrol edin."
         />
 
         <div className="flex items-center justify-center p-8">
           <div className="w-full max-w-md space-y-8 text-center">
-            <div className="lg:hidden text-center">
+            <div className="lg:hidden">
               <h1 className="text-2xl font-semibold tracking-tight">Werna</h1>
             </div>
 
-            <div className="space-y-1">
-              <h2 className="text-2xl font-semibold tracking-tight">E-posta gönderildi</h2>
-              <p className="text-sm text-muted-foreground">
-                {email} adresine doğrulama kodu gönderildi.
-              </p>
+            <div className="flex flex-col items-center gap-4">
+              <div className="size-16 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                <svg className="size-8 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-2xl font-semibold tracking-tight">E-posta gönderildi</h2>
+                <p className="text-sm text-muted-foreground max-w-sm">
+                  <span className="font-medium text-foreground">{email}</span> adresine şifre sıfırlama bağlantısı gönderildi. Bağlantı 1 saat geçerlidir.
+                </p>
+              </div>
             </div>
 
-            <div className="space-y-4">
-              <Link to={`/verify-email?email=${encodeURIComponent(email)}`}>
-                <Button className="w-full h-11">Doğrulama sayfasına git</Button>
-              </Link>
+            <Button variant="ghost" className="w-full" onClick={() => setSent(false)}>
+              Farklı e-posta kullan
+            </Button>
 
-              <Button variant="ghost" className="w-full" onClick={() => setSent(false)}>
-                Farklı e-posta kullan
-              </Button>
-            </div>
+            <Link to="/sign-in" className="flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+              Giriş sayfasına dön
+            </Link>
           </div>
         </div>
       </div>

@@ -7,7 +7,7 @@ import { Toaster } from '@/components/ui/sonner'
 import SignIn from "@/pages/auth/sign-in"
 import SignUp from "@/pages/auth/sign-up"
 import ForgotPassword from "@/pages/auth/forgot-password"
-import VerifyEmail from "@/pages/auth/verify-email"
+import ResetPassword from "@/pages/auth/reset-password"
 import AppLayout from "@/layouts/app-layout"
 import AppIndex from "@/pages/app/index"
 import Settings from "@/pages/app/settings"
@@ -26,8 +26,8 @@ const router = createBrowserRouter([
         element: <ForgotPassword />
     },
     {
-        path: "/verify-email",
-        element: <VerifyEmail />
+        path: "/reset-password",
+        element: <ResetPassword />
     },
     {
         path: "/",
@@ -47,7 +47,7 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById('root')!).render(
     <StrictMode>
-        <Toaster />
+        <Toaster position="top-center" />
         <RouterProvider router={router} />
     </StrictMode>,
 )

@@ -116,19 +116,21 @@ function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: SidebarProp
       {/* Nav */}
       <nav className="flex-1 p-2 space-y-0.5 overflow-hidden">
         {navItems.map(({ to, label, icon: Icon }) => (
-          <Link key={to} to={to} className="block">
-            <Button
-              variant={isActive(to) ? "secondary" : "ghost"}
-              className={cn(
-                "w-full h-10",
-                collapsed ? "lg:justify-center lg:px-0 justify-start gap-3 px-3" : "justify-start gap-3 px-3"
-              )}
-              title={collapsed ? label : undefined}
-            >
+          <Button
+            key={to}
+            asChild
+            variant={isActive(to) ? "secondary" : "ghost"}
+            className={cn(
+              "w-full h-10",
+              collapsed ? "lg:justify-center lg:px-0 justify-start gap-3 px-3" : "justify-start gap-3 px-3"
+            )}
+            title={collapsed ? label : undefined}
+          >
+            <Link to={to}>
               <Icon className="size-4 shrink-0" />
               <span className={cn("truncate", collapsed && "lg:hidden")}>{label}</span>
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         ))}
       </nav>
 

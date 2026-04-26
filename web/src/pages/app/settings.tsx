@@ -5,16 +5,10 @@ import { Button } from "@/components/ui/button"
 import { PasswordInput } from "@/components/ui/password-input"
 import { Spinner } from "@/components/ui/spinner"
 import { useAuthStore } from "@/store/auth-store"
+import type { User } from "@/store/auth-store"
 import { apiClient, ApiClientError } from "@/lib/api-client"
 import { toast } from "sonner"
 import { Pencil, TriangleAlertIcon } from "lucide-react"
-
-interface User {
-  id: string
-  email: string
-  username: string
-  role: string
-}
 
 export default function Settings() {
   const { user, logout } = useAuthStore()
