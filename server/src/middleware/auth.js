@@ -5,7 +5,7 @@ export const authenticate = (req, res, next) => {
   const token = req.cookies?.accessToken;
 
   if (!token) {
-    return next(new UnauthorizedError('Access token missing'));
+    return next(new UnauthorizedError('Erişim token\'ı eksik'));
   }
 
   try {
@@ -13,7 +13,7 @@ export const authenticate = (req, res, next) => {
     req.user = decoded;
     next();
   } catch {
-    return next(new UnauthorizedError('Invalid or expired access token'));
+    return next(new UnauthorizedError('Geçersiz veya süresi dolmuş erişim token\'ı'));
   }
 };
 
@@ -24,7 +24,7 @@ export const authorize = (...roles) => {
     }
 
     if (!roles.includes(req.user.role)) {
-      return next(new UnauthorizedError('Insufficient permissions'));
+      return next(new UnauthorizedError('Bu işlem için yetkiniz yok'));
     }
 
     next();
