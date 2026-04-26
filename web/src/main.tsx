@@ -11,6 +11,7 @@ import ResetPassword from "@/pages/auth/reset-password"
 import AppLayout from "@/layouts/app-layout"
 import AppIndex from "@/pages/app/index"
 import Settings from "@/pages/app/settings"
+import { ThemeProvider } from './providers/theme-provider'
 
 const router = createBrowserRouter([
     {
@@ -47,7 +48,10 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById('root')!).render(
     <StrictMode>
-        <Toaster position="top-center" />
-        <RouterProvider router={router} />
+        <ThemeProvider storageKey='vite-ui-theme'>
+            <Toaster position="top-center" />
+            <RouterProvider router={router} />
+        </ThemeProvider>
+
     </StrictMode>,
 )

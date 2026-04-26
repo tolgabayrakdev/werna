@@ -24,6 +24,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import wernaLogo from "@/assets/werna_logo.svg"
+import { ModeToggle } from "@/components/mode-toggle"
 
 const navItems = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -144,6 +145,7 @@ function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: SidebarProp
           <div className="size-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-semibold text-primary select-none">
             {initials}
           </div>
+          <ModeToggle className="size-8" />
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button
@@ -168,6 +170,7 @@ function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: SidebarProp
             <p className="text-sm font-medium truncate leading-none mb-0.5">{user?.username}</p>
             <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
           </div>
+          <ModeToggle className="size-8 shrink-0" />
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button
