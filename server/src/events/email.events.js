@@ -22,8 +22,7 @@ eventEmitter.on('send-password-reset', async ({ email, token }) => {
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log("sent");
-
+    console.log('sent');
   } catch (err) {
     console.error('Failed to send password reset email:', err);
   }
