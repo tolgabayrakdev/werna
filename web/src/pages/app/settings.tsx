@@ -101,7 +101,7 @@ export default function Settings() {
   }
 
   return (
-    <div className="p-6 lg:p-8 space-y-8 max-w-5xl mx-auto">
+    <div className="p-6 lg:p-8 space-y-8 max-w-6xl mx-auto">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Ayarlar</h1>
         <p className="text-sm text-muted-foreground mt-1">İşletme bilgilerinizi ve güvenlik ayarlarınızı yönetin.</p>

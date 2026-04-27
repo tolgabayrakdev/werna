@@ -1,22 +1,28 @@
-import { Shield, Zap, BarChart3 } from "lucide-react"
+import { QrCode, BarChart3, MessageSquareHeart } from "lucide-react"
 import wernaLogo from "@/assets/werna_logo.svg"
 
 const features = [
   {
-    icon: Shield,
-    title: "Güvenli Altyapı",
-    desc: "Verileriniz uçtan uca şifrelenmiş ve güvende",
+    icon: QrCode,
+    title: "QR ile Anında Geri Bildirim",
+    desc: "Müşterileriniz QR kodu okutarak 30 saniyede anonim geri bildirim gönderebilir",
   },
   {
-    icon: Zap,
-    title: "Hızlı ve Güvenilir",
-    desc: "Kesintisiz hizmet, anında erişim",
+    icon: MessageSquareHeart,
+    title: "Akıllı Sınıflandırma",
+    desc: "Şikayet, öneri, istek ve tebrikler otomatik olarak kategorize edilir",
   },
   {
     icon: BarChart3,
-    title: "Güçlü Analitik",
-    desc: "İş süreçlerinizi veriye dayalı optimize edin",
+    title: "Gerçek Zamanlı Raporlama",
+    desc: "Anlık analitik ve aylık trend raporlarıyla işletmenizi optimize edin",
   },
+]
+
+const stats = [
+  { value: "500+", label: "İşletme" },
+  { value: "50K+", label: "Geri Bildirim" },
+  { value: "%99.9", label: "Uptime" },
 ]
 
 interface AuthLeftPanelProps {
@@ -27,58 +33,82 @@ interface AuthLeftPanelProps {
 export function AuthLeftPanel({ heading, description }: AuthLeftPanelProps) {
   return (
     <div className="hidden lg:flex flex-col relative overflow-hidden bg-slate-950 p-12 text-white select-none">
-      {/* Decorative blobs */}
-      <div className="absolute -top-40 -right-40 size-[520px] rounded-full bg-primary/20 blur-[120px] pointer-events-none" />
-      <div className="absolute -bottom-40 -left-40 size-[420px] rounded-full bg-indigo-600/15 blur-[100px] pointer-events-none" />
-      <div className="absolute top-1/2 right-0 -translate-y-1/2 size-[200px] rounded-full bg-violet-500/10 blur-[60px] pointer-events-none" />
+      {/* Background blobs */}
+      <div className="absolute -top-32 -right-32 size-[480px] rounded-full bg-primary/25 blur-[120px] pointer-events-none" />
+      <div className="absolute -bottom-32 -left-32 size-[400px] rounded-full bg-indigo-600/20 blur-[100px] pointer-events-none" />
+      <div className="absolute top-1/3 right-1/4 size-[180px] rounded-full bg-violet-500/15 blur-[60px] pointer-events-none" />
 
-      {/* Dot grid overlay */}
+      {/* Subtle dot grid */}
       <div
-        className="absolute inset-0 pointer-events-none opacity-[0.12]"
+        className="absolute inset-0 pointer-events-none opacity-[0.07]"
         style={{
           backgroundImage:
-            "radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px)",
-          backgroundSize: "28px 28px",
+            "radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px)",
+          backgroundSize: "24px 24px",
         }}
       />
+
+      {/* Horizontal rule accent */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
 
       {/* Content */}
       <div className="relative z-10 flex flex-col h-full">
         {/* Logo */}
         <div className="flex items-center gap-2.5">
-          <img src={wernaLogo} alt="Werna" className="h-9 w-auto brightness-0 invert" />
-          <span className="text-xl font-semibold tracking-tight">Werna</span>
+          <img src={wernaLogo} alt="Werna" className="h-8 w-auto brightness-0 invert" />
+          <span className="text-lg font-semibold tracking-tight">Werna</span>
         </div>
 
         {/* Main content */}
-        <div className="flex-1 flex flex-col justify-center space-y-10">
-          <div className="space-y-4">
-            <h2 className="text-[2.6rem] font-bold leading-[1.15] tracking-tight">
+        <div className="flex-1 flex flex-col justify-center gap-10">
+          {/* Heading */}
+          <div className="space-y-3">
+            <div className="inline-flex items-center gap-2 bg-white/8 border border-white/10 rounded-full px-3 py-1 text-[11px] font-medium text-white/60 tracking-wide">
+              <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              Müşteri Geri Bildirim Platformu
+            </div>
+            <h2 className="text-[2.4rem] font-bold leading-[1.15] tracking-tight">
               {heading}
             </h2>
-            <p className="text-white/55 text-base leading-relaxed max-w-[300px]">
+            <p className="text-white/50 text-sm leading-relaxed max-w-[290px]">
               {description}
             </p>
           </div>
 
-          {/* Feature list */}
+          {/* Features */}
           <div className="space-y-5">
             {features.map(({ icon: Icon, title, desc }) => (
               <div key={title} className="flex items-start gap-3.5">
-                <div className="size-9 rounded-lg bg-white/10 border border-white/10 flex items-center justify-center shrink-0 mt-0.5 backdrop-blur-sm">
-                  <Icon className="size-4 text-white/70" />
+                <div className="size-9 rounded-xl bg-white/8 border border-white/10 flex items-center justify-center shrink-0 backdrop-blur-sm">
+                  <Icon className="size-4 text-white/65" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium leading-none mb-1">{title}</p>
-                  <p className="text-white/45 text-xs leading-relaxed">{desc}</p>
+                  <p className="text-sm font-semibold leading-none mb-1.5 text-white/90">{title}</p>
+                  <p className="text-white/40 text-xs leading-relaxed">{desc}</p>
                 </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-3 gap-3">
+            {stats.map(({ value, label }) => (
+              <div
+                key={label}
+                className="bg-white/5 border border-white/8 rounded-xl p-3 text-center backdrop-blur-sm"
+              >
+                <p className="text-xl font-bold text-white/90 tracking-tight">{value}</p>
+                <p className="text-[11px] text-white/40 mt-0.5">{label}</p>
               </div>
             ))}
           </div>
         </div>
 
         {/* Footer */}
-        <p className="text-xs text-white/25">© 2026 Werna. Tüm hakları saklıdır.</p>
+        <div className="flex items-center justify-between">
+          <p className="text-xs text-white/20">© 2026 Werna. Tüm hakları saklıdır.</p>
+          <p className="text-[11px] text-white/20">werna.app</p>
+        </div>
       </div>
     </div>
   )

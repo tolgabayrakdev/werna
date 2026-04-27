@@ -7,19 +7,37 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Skeleton } from "@/components/ui/skeleton"
 import { Separator } from "@/components/ui/separator"
 import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip as ReTooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+} from "recharts"
+import {
   MessageSquare,
   ThumbsUp,
   AlertCircle,
   Lightbulb,
-  Star,
   TrendingUp,
   TrendingDown,
-  ArrowUpRight,
-  Link2,
   Clock,
+  ArrowUpRight,
+  Star,
+  Calendar,
+  Activity,
+  SmilePlus,
 } from "lucide-react"
 
-interface TypeCount { type: string; count: string }
+interface TypeCount {
+  type: string
+  count: string
+}
 interface AnalyticsData {
   allTime: TypeCount[]
   thisWeek: TypeCount[]
@@ -37,33 +55,34 @@ interface Feedback {
   link_name: string
 }
 
-interface FeedbackLink {
-  id: string
-  name: string
-  slug: string
+const TYPE_CONFIG: Record<
+  string,
+  { label: string; icon: typeof MessageSquare; color: string; bg: string; fill: string }
+> = {
+  complaint: { label: "Şikayet", icon: AlertCircle, color: "text-red-500", bg: "bg-red-500/10", fill: "#ef4444" },
+  suggestion: { label: "Öneri", icon: Lightbulb, color: "text-amber-500", bg: "bg-amber-500/10", fill: "#f59e0b" },
+  request: { label: "İstek", icon: MessageSquare, color: "text-blue-500", bg: "bg-blue-500/10", fill: "#3b82f6" },
+  compliment: { label: "Tebrik", icon: ThumbsUp, color: "text-emerald-500", bg: "bg-emerald-500/10", fill: "#10b981" },
 }
 
-const TYPE_CONFIG: Record<string, { label: string; icon: typeof MessageSquare; color: string; bg: string; bar: string }> = {
-  complaint: { label: "Şikayet", icon: AlertCircle, color: "text-red-500", bg: "bg-red-500/10", bar: "bg-red-500" },
-  suggestion: { label: "Öneri", icon: Lightbulb, color: "text-amber-500", bg: "bg-amber-500/10", bar: "bg-amber-500" },
-  request: { label: "İstek", icon: MessageSquare, color: "text-blue-500", bg: "bg-blue-500/10", bar: "bg-blue-500" },
-  compliment: { label: "Tebrik", icon: ThumbsUp, color: "text-emerald-500", bg: "bg-emerald-500/10", bar: "bg-emerald-500" },
-}
+const STAT_CONFIGS = [
+  { key: "total",  label: "Toplam", sub: "Tüm zamanlar", icon: Star,       accent: "text-violet-500", accentBg: "bg-violet-500/10" },
+  { key: "week",   label: "Bu Hafta", sub: "Son 7 gün",  icon: Activity,   accent: "text-blue-500",   accentBg: "bg-blue-500/10"   },
+  { key: "month",  label: "Bu Ay",    sub: "",            icon: Calendar,   accent: "text-amber-500",  accentBg: "bg-amber-500/10"  },
+  { key: "year",   label: "Bu Yıl",   sub: "",            icon: TrendingUp, accent: "text-emerald-500",accentBg: "bg-emerald-500/10"},
+]
 
 function sumCounts(rows: TypeCount[]) {
   return rows.reduce((acc, r) => acc + parseInt(r.count), 0)
 }
-
 function getCount(rows: TypeCount[], type: string) {
   return parseInt(rows.find((r) => r.type === type)?.count ?? "0")
 }
-
 function getTrend(current: number, previous: number) {
   if (previous === 0) return { value: current > 0 ? 100 : 0, isUp: current >= 0 }
   const diff = ((current - previous) / previous) * 100
   return { value: Math.abs(Math.round(diff)), isUp: diff >= 0 }
 }
-
 function formatDate(dateStr: string) {
   const d = new Date(dateStr)
   const now = new Date()
@@ -78,24 +97,21 @@ export default function AppIndex() {
   const user = useCurrentUser()
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
   const [recentFeedbacks, setRecentFeedbacks] = useState<Feedback[]>([])
-  const [links, setLinks] = useState<FeedbackLink[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const load = async () => {
       try {
-        const [analyticsRes, feedbacksRes, linksRes] = await Promise.all([
+        const [analyticsRes, feedbacksRes] = await Promise.all([
           apiClient.get<{ success: boolean; data: AnalyticsData }>("/api/feedback/analytics"),
-          apiClient.get<{ success: boolean; data: Feedback[]; pagination: { total: number } }>("/api/feedback?limit=5"),
-          apiClient.get<{ success: boolean; data: FeedbackLink[] }>("/api/feedback/links"),
+          apiClient.get<{ success: boolean; data: Feedback[]; pagination: { total: number } }>(
+            "/api/feedback?limit=5"
+          ),
         ])
         setAnalytics(analyticsRes.data)
         setRecentFeedbacks(feedbacksRes.data)
-        setLinks(linksRes.data)
       } catch (err) {
-        if (err instanceof ApiClientError && err.status !== 401) {
-          console.error(err)
-        }
+        if (err instanceof ApiClientError && err.status !== 401) console.error(err)
       } finally {
         setLoading(false)
       }
@@ -103,73 +119,72 @@ export default function AppIndex() {
     load()
   }, [])
 
-  const totalAll = analytics ? sumCounts(analytics.allTime) : 0
-  const totalWeek = analytics ? sumCounts(analytics.thisWeek) : 0
+  const totalAll   = analytics ? sumCounts(analytics.allTime)   : 0
+  const totalWeek  = analytics ? sumCounts(analytics.thisWeek)  : 0
   const totalMonth = analytics ? sumCounts(analytics.thisMonth) : 0
-  const totalLastMonth = analytics
-    ? Math.max(0, totalMonth - totalWeek + Math.floor(Math.random() * 5))
-    : 0
+  const totalYear  = analytics ? sumCounts(analytics.thisYear)  : 0
+
+  const totalCompliments = analytics ? getCount(analytics.allTime, "compliment") : 0
+  const totalComplaints  = analytics ? getCount(analytics.allTime, "complaint")  : 0
+  const satisfactionScore =
+    totalCompliments + totalComplaints > 0
+      ? Math.round((totalCompliments / (totalCompliments + totalComplaints)) * 100)
+      : null
+
+  const satisfactionLevel =
+    satisfactionScore === null ? null
+    : satisfactionScore >= 70 ? { label: "Mükemmel",        color: "text-emerald-600", barColor: "#10b981" }
+    : satisfactionScore >= 45 ? { label: "Orta Düzey",       color: "text-amber-600",  barColor: "#f59e0b" }
+    :                           { label: "Dikkat Gerekiyor", color: "text-red-600",    barColor: "#ef4444" }
 
   const monthlyChartData = (() => {
     if (!analytics) return []
-    const months: Record<string, Record<string, number>> = {}
-    analytics.monthly.forEach(({ month, type, count }) => {
-      if (!months[month]) months[month] = {}
-      months[month][type] = parseInt(count)
+    const months: Record<string, number> = {}
+    analytics.monthly.forEach(({ month, count }) => {
+      months[month] = (months[month] ?? 0) + parseInt(count)
     })
     return Object.entries(months)
       .sort(([a], [b]) => a.localeCompare(b))
       .slice(-6)
-      .map(([month, types]) => ({
-        month: new Date(month + "-01").toLocaleDateString("tr-TR", { month: "short", year: "2-digit" }),
-        total: Object.values(types).reduce((a, b) => a + b, 0),
-        ...types,
+      .map(([month, total]) => ({
+        name: new Date(month + "-01").toLocaleDateString("tr-TR", { month: "short", year: "2-digit" }),
+        total,
       }))
   })()
 
-  const maxMonthly = Math.max(...monthlyChartData.map((d) => d.total), 1)
-  const complimentRate = totalAll > 0 ? Math.round((getCount(analytics?.allTime ?? [], "compliment") / totalAll) * 100) : 0
+  const totalLastMonth = monthlyChartData.length >= 2
+    ? (monthlyChartData[monthlyChartData.length - 2]?.total ?? 0)
+    : 0
 
-  const stats = [
-    {
-      label: "Toplam Geri Bildirim",
-      value: totalAll,
-      sub: "Tüm zamanlar",
-      icon: Star,
-      trend: getTrend(totalMonth, totalLastMonth),
-    },
-    {
-      label: "Bu Hafta",
-      value: totalWeek,
-      sub: "Son 7 gün",
-      icon: TrendingUp,
-      trend: getTrend(totalWeek, totalMonth - totalWeek),
-    },
-    {
-      label: "Bu Ay",
-      value: totalMonth,
-      sub: new Date().toLocaleDateString("tr-TR", { month: "long" }),
-      icon: MessageSquare,
-      trend: getTrend(totalMonth, totalLastMonth),
-    },
-    {
-      label: "Tebrik Oranı",
-      value: `${complimentRate}%`,
-      sub: "Tüm zamanlar",
-      icon: ThumbsUp,
-      trend: { value: complimentRate, isUp: complimentRate >= 50 },
-    },
-  ]
+  const statValues: Record<string, { value: number; trend: { value: number; isUp: boolean }; sub: string }> = {
+    total: { value: totalAll,   trend: getTrend(totalMonth, totalLastMonth),            sub: "Tüm zamanlar" },
+    week:  { value: totalWeek,  trend: getTrend(totalWeek, totalMonth - totalWeek),     sub: "Son 7 gün" },
+    month: { value: totalMonth, trend: getTrend(totalMonth, totalLastMonth),            sub: new Date().toLocaleDateString("tr-TR", { month: "long" }) },
+    year:  { value: totalYear,  trend: getTrend(totalYear, totalAll - totalYear),       sub: new Date().getFullYear().toString() },
+  }
+
+  const pieData = Object.entries(TYPE_CONFIG)
+    .map(([type, cfg]) => ({
+      name: cfg.label,
+      value: analytics ? getCount(analytics.allTime, type) : 0,
+      fill: cfg.fill,
+    }))
+    .filter((d) => d.value > 0)
+
+  const totalYearSum = analytics ? sumCounts(analytics.thisYear) : 0
 
   return (
-    <div className="p-6 lg:p-8 space-y-8 max-w-5xl mx-auto">
+    <div className="p-6 lg:p-8 space-y-5 max-w-6xl mx-auto">
+
       {/* Header */}
       <div className="flex items-end justify-between">
         <div>
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-1">
+            Genel Bakış
+          </p>
           <h1 className="text-2xl font-bold tracking-tight">
             Hoş geldiniz{user?.name ? `, ${user.name}` : ""}
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">Geri bildirim analizinize genel bakış</p>
         </div>
         <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground bg-muted/60 rounded-lg px-3 py-1.5">
           <Clock className="size-3.5" />
@@ -177,87 +192,128 @@ export default function AppIndex() {
         </div>
       </div>
 
+      {/* Compact Satisfaction Strip */}
+      <div className="flex items-center gap-3 bg-card border rounded-xl px-4 py-3">
+        <SmilePlus
+          className={cn(
+            "size-4 shrink-0",
+            satisfactionLevel
+              ? satisfactionLevel.color
+              : "text-muted-foreground"
+          )}
+        />
+        <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">
+          Memnuniyet Skoru
+        </span>
+        {loading ? (
+          <Skeleton className="h-5 w-16" />
+        ) : satisfactionScore === null ? (
+          <span className="text-sm text-muted-foreground">—</span>
+        ) : (
+          <>
+            <span className={cn("text-sm font-bold tabular-nums", satisfactionLevel?.color)}>
+              %{satisfactionScore}
+            </span>
+            {satisfactionLevel && (
+              <span className="text-xs text-muted-foreground">{satisfactionLevel.label}</span>
+            )}
+          </>
+        )}
+
+        {/* progress bar */}
+        <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden mx-1">
+          {!loading && satisfactionScore !== null && (
+            <div
+              className="h-full rounded-full transition-all duration-700"
+              style={{ width: `${satisfactionScore}%`, backgroundColor: satisfactionLevel?.barColor }}
+            />
+          )}
+        </div>
+
+        <div className="hidden sm:flex items-center gap-3 text-xs text-muted-foreground shrink-0">
+          <span className="text-emerald-600 font-medium tabular-nums">
+            {loading ? "—" : `${totalCompliments.toLocaleString("tr-TR")} tebrik`}
+          </span>
+          <span className="text-border">·</span>
+          <span className="text-red-500 font-medium tabular-nums">
+            {loading ? "—" : `${totalComplaints.toLocaleString("tr-TR")} şikayet`}
+          </span>
+        </div>
+      </div>
+
       {/* Stats Grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map(({ label, value, sub, icon: Icon, trend }) => (
-          <Card key={label} className="relative overflow-hidden">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-medium text-muted-foreground">{label}</p>
-                <div className="size-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <Icon className="size-4 text-primary" />
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {STAT_CONFIGS.map(({ key, label, icon: Icon, accent, accentBg }) => {
+          const sv = statValues[key]
+          return (
+            <Card key={key} className="relative overflow-hidden">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-2.5">
+                  <p className="text-xs font-medium text-muted-foreground">{label}</p>
+                  <div className={cn("size-7 rounded-lg flex items-center justify-center", accentBg)}>
+                    <Icon className={cn("size-3.5", accent)} />
+                  </div>
                 </div>
-              </div>
-              <div className="mt-3">
-                <p className="text-3xl font-bold tracking-tight">
-                  {loading ? <Skeleton className="h-9 w-20" /> : value}
+                <p className="text-2xl font-bold tracking-tight">
+                  {loading ? (
+                    <Skeleton className="h-8 w-16 inline-block" />
+                  ) : (
+                    sv.value.toLocaleString("tr-TR")
+                  )}
                 </p>
                 <div className="flex items-center gap-1.5 mt-1">
                   {loading ? (
-                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-3.5 w-20" />
                   ) : (
                     <>
-                      <span
-                        className={cn(
-                          "inline-flex items-center text-xs font-medium",
-                          trend.isUp ? "text-emerald-600" : "text-red-600"
-                        )}
-                      >
-                        {trend.isUp ? <TrendingUp className="size-3 mr-0.5" /> : <TrendingDown className="size-3 mr-0.5" />}
-                        %{trend.value}
+                      <span className={cn("inline-flex items-center text-xs font-medium", sv.trend.isUp ? "text-emerald-600" : "text-red-500")}>
+                        {sv.trend.isUp ? <TrendingUp className="size-3 mr-0.5" /> : <TrendingDown className="size-3 mr-0.5" />}
+                        %{sv.trend.value}
                       </span>
-                      <span className="text-xs text-muted-foreground">· {sub}</span>
+                      <span className="text-xs text-muted-foreground">· {sv.sub}</span>
                     </>
                   )}
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          )
+        })}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-5">
-        {/* Main column */}
-        <div className="lg:col-span-3 space-y-6">
-          {/* Monthly Chart */}
+      {/* Main grid: 3 left + 2 right */}
+      <div className="grid gap-5 lg:grid-cols-5">
+
+        {/* Left column */}
+        <div className="lg:col-span-3 space-y-5">
+
+          {/* Monthly Trend */}
           <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base font-semibold">Aylık Geri Bildirim</CardTitle>
-              <CardDescription>Son 6 aylık geri bildirim trendi</CardDescription>
+            <CardHeader className="pb-2 pt-4 px-5">
+              <CardTitle className="text-sm font-semibold">Aylık Geri Bildirim Trendi</CardTitle>
+              <CardDescription className="text-xs">Son 6 aylık toplam geri bildirim sayısı</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-5 pb-4">
               {loading ? (
-                <div className="h-52 flex items-end gap-2">
-                  {Array.from({ length: 6 }).map((_, i) => (
-                    <Skeleton key={i} className="flex-1 rounded-t-lg" style={{ height: `${20 + Math.random() * 60}%` }} />
-                  ))}
-                </div>
+                <Skeleton className="h-56 w-full" />
               ) : monthlyChartData.length === 0 ? (
-                <div className="h-52 flex items-center justify-center text-muted-foreground text-sm">
-                  Henüz veri yok
-                </div>
+                <div className="h-56 flex items-center justify-center text-muted-foreground text-sm">Henüz veri yok</div>
               ) : (
-                <div className="flex items-end gap-3 h-52 px-2">
-                  {monthlyChartData.map((d) => (
-                    <div key={d.month} className="flex-1 flex flex-col items-center gap-2 group">
-                      <div className="relative w-full flex items-end justify-center">
-                        <div
-                          className="w-full bg-primary/10 rounded-t-md relative overflow-hidden transition-all duration-500"
-                          style={{ height: `${Math.round((d.total / maxMonthly) * 160)}px`, minHeight: "4px" }}
-                        >
-                          <div
-                            className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-primary to-primary/80 rounded-t-md transition-all duration-500"
-                            style={{ height: "100%" }}
-                          />
-                        </div>
-                        {/* Tooltip */}
-                        <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-popover border rounded-md px-2 py-1 text-xs font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity z-10 shadow-sm pointer-events-none">
-                          {d.total} geri bildirim
-                        </div>
-                      </div>
-                      <span className="text-[11px] text-muted-foreground font-medium">{d.month}</span>
-                    </div>
-                  ))}
+                <div className="h-56">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={monthlyChartData} margin={{ top: 5, right: 5, left: -22, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%"  style={{ stopColor: "var(--primary)", stopOpacity: "0.18" }} />
+                          <stop offset="95%" style={{ stopColor: "var(--primary)", stopOpacity: "0" }} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11 }} dy={8} />
+                      <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11 }} allowDecimals={false} />
+                      <ReTooltip formatter={(v) => [`${v} geri bildirim`, "Toplam"]} />
+                      <Area type="monotone" dataKey="total" strokeWidth={2} fillOpacity={1} fill="url(#colorTotal)" />
+                    </AreaChart>
+                  </ResponsiveContainer>
                 </div>
               )}
             </CardContent>
@@ -265,30 +321,31 @@ export default function AppIndex() {
 
           {/* Recent Feedbacks */}
           <Card>
-            <CardHeader className="pb-3 flex flex-row items-center justify-between">
+            <CardHeader className="pb-2 pt-4 px-5 flex flex-row items-center justify-between">
               <div>
-                <CardTitle className="text-base font-semibold">Son Geri Bildirimler</CardTitle>
-                <CardDescription>En son alınan geri bildirimler</CardDescription>
+                <CardTitle className="text-sm font-semibold">Son Geri Bildirimler</CardTitle>
+                <CardDescription className="text-xs">En son alınan geri bildirimler</CardDescription>
               </div>
-              <Link to="/feedbacks">
-                <div className="text-xs font-medium text-primary hover:underline inline-flex items-center gap-1">
-                  Tümünü gör <ArrowUpRight className="size-3" />
-                </div>
+              <Link
+                to="/feedbacks"
+                className="text-xs font-medium text-primary hover:underline inline-flex items-center gap-0.5 shrink-0"
+              >
+                Tümünü gör <ArrowUpRight className="size-3" />
               </Link>
             </CardHeader>
-            <CardContent className="space-y-1">
+            <CardContent className="px-5 pb-4 space-y-0.5">
               {loading ? (
                 Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="flex items-start gap-3 py-3">
-                    <Skeleton className="size-8 rounded-lg" />
-                    <div className="space-y-1.5 flex-1">
-                      <Skeleton className="h-4 w-32" />
+                  <div key={i} className="flex items-start gap-3 py-2.5">
+                    <Skeleton className="size-7 rounded-lg shrink-0" />
+                    <div className="space-y-1 flex-1">
+                      <Skeleton className="h-3.5 w-28" />
                       <Skeleton className="h-3 w-full" />
                     </div>
                   </div>
                 ))
               ) : recentFeedbacks.length === 0 ? (
-                <div className="py-8 text-center text-muted-foreground text-sm">
+                <div className="py-6 text-center text-muted-foreground text-sm">
                   Henüz geri bildirim alınmamış
                 </div>
               ) : (
@@ -297,16 +354,16 @@ export default function AppIndex() {
                   const Icon = cfg.icon
                   return (
                     <div key={fb.id}>
-                      <div className="flex items-start gap-3 py-3 group">
-                        <div className={cn("size-8 rounded-lg flex items-center justify-center shrink-0", cfg.bg)}>
-                          <Icon className={cn("size-4", cfg.color)} />
+                      <div className="flex items-start gap-3 py-2.5">
+                        <div className={cn("size-7 rounded-lg flex items-center justify-center shrink-0", cfg.bg)}>
+                          <Icon className={cn("size-3.5", cfg.color)} />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between gap-2">
-                            <span className="text-sm font-medium truncate">{fb.link_name}</span>
-                            <span className="text-[11px] text-muted-foreground whitespace-nowrap">{formatDate(fb.created_at)}</span>
+                            <span className="text-xs font-medium truncate">{fb.link_name}</span>
+                            <span className="text-[11px] text-muted-foreground whitespace-nowrap shrink-0">{formatDate(fb.created_at)}</span>
                           </div>
-                          <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5 leading-relaxed">{fb.message}</p>
+                          <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{fb.message}</p>
                         </div>
                       </div>
                       {idx < recentFeedbacks.length - 1 && <Separator />}
@@ -318,117 +375,99 @@ export default function AppIndex() {
           </Card>
         </div>
 
-        {/* Side column */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Type Distribution */}
+        {/* Right column */}
+        <div className="lg:col-span-2 space-y-5">
+
+          {/* Donut Chart */}
           <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base font-semibold">Tür Dağılımı</CardTitle>
-              <CardDescription>Tüm zamanların geri bildirim türleri</CardDescription>
+            <CardHeader className="pb-2 pt-4 px-5">
+              <CardTitle className="text-sm font-semibold">Tür Dağılımı</CardTitle>
+              <CardDescription className="text-xs">Tüm zamanların geri bildirim türleri</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-5">
+            <CardContent className="px-5 pb-4">
               {loading ? (
-                Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="space-y-2">
-                    <Skeleton className="h-4 w-24" />
-                    <Skeleton className="h-2 w-full" />
-                  </div>
-                ))
+                <div className="h-52 flex items-center justify-center">
+                  <Skeleton className="h-40 w-40 rounded-full" />
+                </div>
+              ) : pieData.length === 0 ? (
+                <div className="h-52 flex items-center justify-center text-muted-foreground text-sm">Henüz veri yok</div>
               ) : (
-                Object.entries(TYPE_CONFIG).map(([type, cfg]) => {
-                  const count = analytics ? getCount(analytics.allTime, type) : 0
-                  const pct = totalAll > 0 ? Math.round((count / totalAll) * 100) : 0
-                  return (
-                    <div key={type} className="space-y-2">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="flex items-center gap-2 text-muted-foreground">
-                          <cfg.icon className={cn("size-4", cfg.color)} />
-                          {cfg.label}
-                        </span>
-                        <span className="font-semibold tabular-nums text-sm">{count}</span>
-                      </div>
-                      <div className="h-2 rounded-full bg-muted overflow-hidden">
-                        <div
-                          className={cn("h-full rounded-full transition-all duration-700", cfg.bar)}
-                          style={{ width: `${pct}%` }}
-                        />
-                      </div>
-                    </div>
-                  )
-                })
+                <div className="h-52">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie data={pieData} cx="50%" cy="50%" innerRadius={50} outerRadius={76} paddingAngle={3} dataKey="value" stroke="none">
+                        {pieData.map((entry, i) => <Cell key={i} fill={entry.fill} />)}
+                      </Pie>
+                      <ReTooltip formatter={(v, name) => [`${v} adet`, name]} />
+                      <Legend verticalAlign="bottom" height={28} iconType="circle" iconSize={7} wrapperStyle={{ fontSize: 11 }} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
               )}
             </CardContent>
           </Card>
 
-          {/* Quick Links / Info */}
+          {/* Year Summary */}
           <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base font-semibold">Hızlı Erişim</CardTitle>
+            <CardHeader className="pb-2 pt-4 px-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-sm font-semibold">Bu Yıl Özeti</CardTitle>
+                  <CardDescription className="text-xs">{new Date().getFullYear()} yılı dağılımı</CardDescription>
+                </div>
+                {!loading && totalYearSum > 0 && (
+                  <span className="text-xs font-semibold text-muted-foreground bg-muted px-2 py-0.5 rounded-md tabular-nums">
+                    {totalYearSum.toLocaleString("tr-TR")}
+                  </span>
+                )}
+              </div>
             </CardHeader>
-            <CardContent className="space-y-2">
-              <Link to="/links" className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-muted transition-colors group">
-                <div className="size-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                  <Link2 className="size-4 text-primary" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium group-hover:text-primary transition-colors">Bağlantılar</p>
-                  <p className="text-xs text-muted-foreground">{links.length} aktif link</p>
-                </div>
-                <ArrowUpRight className="size-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-              </Link>
-              <Link to="/feedbacks" className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-muted transition-colors group">
-                <div className="size-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                  <MessageSquare className="size-4 text-primary" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium group-hover:text-primary transition-colors">Geri Bildirimler</p>
-                  <p className="text-xs text-muted-foreground">{totalAll} toplam</p>
-                </div>
-                <ArrowUpRight className="size-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-              </Link>
-            </CardContent>
-          </Card>
-
-          {/* This Year Summary */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base font-semibold">Bu Yıl Özeti</CardTitle>
-              <CardDescription>{new Date().getFullYear()} yılına ait geri bildirimler</CardDescription>
-            </CardHeader>
-            <CardContent>
+            <CardContent className="px-5 pb-4">
               {loading ? (
-                <div className="space-y-3">
-                  <Skeleton className="h-8 w-full" />
-                  <Skeleton className="h-8 w-full" />
-                  <Skeleton className="h-8 w-2/3" />
+                <div className="space-y-3.5">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="space-y-1.5">
+                      <div className="flex justify-between"><Skeleton className="h-3.5 w-16" /><Skeleton className="h-3.5 w-8" /></div>
+                      <Skeleton className="h-1.5 w-full rounded-full" />
+                    </div>
+                  ))}
                 </div>
+              ) : totalYearSum === 0 ? (
+                <p className="text-sm text-muted-foreground py-4 text-center">Henüz bu yıl geri bildirim yok</p>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-3.5">
                   {Object.entries(TYPE_CONFIG).map(([type, cfg]) => {
                     const count = analytics ? getCount(analytics.thisYear, type) : 0
                     if (count === 0) return null
+                    const pct = (count / totalYearSum) * 100
                     return (
-                      <div key={type} className="flex items-center justify-between py-1">
-                        <span className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <cfg.icon className={cn("size-4", cfg.color)} />
-                          {cfg.label}
-                        </span>
-                        <span className="font-semibold tabular-nums text-sm">{count}</span>
+                      <div key={type}>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                            <span className="size-2 rounded-full shrink-0" style={{ backgroundColor: cfg.fill }} />
+                            {cfg.label}
+                          </span>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[11px] text-muted-foreground tabular-nums">%{Math.round(pct)}</span>
+                            <span className="text-xs font-semibold tabular-nums w-7 text-right">{count}</span>
+                          </div>
+                        </div>
+                        <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                          <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: cfg.fill }} />
+                        </div>
                       </div>
                     )
                   })}
-                  {(!analytics || sumCounts(analytics.thisYear) === 0) && (
-                    <p className="text-sm text-muted-foreground text-center py-2">Henüz bu yıl geri bildirim yok</p>
-                  )}
-                  <Separator />
-                  <div className="flex items-center justify-between py-1">
-                    <span className="text-sm font-medium">Toplam</span>
-                    <span className="text-sm font-bold tabular-nums">{analytics ? sumCounts(analytics.thisYear) : 0}</span>
+                  <Separator className="mt-1" />
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-medium">Toplam</span>
+                    <span className="text-xs font-bold tabular-nums">{totalYearSum.toLocaleString("tr-TR")}</span>
                   </div>
                 </div>
               )}
             </CardContent>
           </Card>
+
         </div>
       </div>
     </div>

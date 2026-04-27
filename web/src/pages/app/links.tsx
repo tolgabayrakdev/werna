@@ -5,9 +5,18 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Spinner } from "@/components/ui/spinner"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Separator } from "@/components/ui/separator"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog"
 import { toast } from "sonner"
 import {
   Plus,
@@ -19,6 +28,7 @@ import {
   Download,
   Link2,
   CheckCircle2,
+  Calendar,
 } from "lucide-react"
 
 interface FeedbackLink {
@@ -48,7 +58,7 @@ export default function LinksPage() {
   const [loading, setLoading] = useState(true)
   const [creating, setCreating] = useState(false)
   const [newName, setNewName] = useState("")
-  const [showCreate, setShowCreate] = useState(false)
+  const [dialogOpen, setDialogOpen] = useState(false)
   const [qrTarget, setQrTarget] = useState<FeedbackLink | null>(null)
   const [copiedSlug, setCopiedSlug] = useState<string | null>(null)
   const qrRef = useRef<SVGSVGElement>(null)
@@ -66,13 +76,17 @@ export default function LinksPage() {
     if (!newName.trim()) return
     setCreating(true)
     try {
-      const res = await apiClient.post<CreateLinkRes>("/api/feedback/links", { name: newName.trim() })
+      const res = await apiClient.post<CreateLinkRes>("/api/feedback/links", {
+        name: newName.trim(),
+      })
       setLinks((prev) => [res.data, ...prev])
       setNewName("")
-      setShowCreate(false)
+      setDialogOpen(false)
       toast.success("Bağlantı oluşturuldu")
     } catch (err) {
-      toast.error(err instanceof ApiClientError ? (err.data.message ?? "Oluşturulamadı") : "Bir hata oluştu")
+      toast.error(
+        err instanceof ApiClientError ? (err.data.message ?? "Oluşturulamadı") : "Bir hata oluştu"
+      )
     } finally {
       setCreating(false)
     }
@@ -121,14 +135,16 @@ export default function LinksPage() {
   const activeCount = links.filter((l) => l.is_active).length
 
   return (
-    <div className="p-6 lg:p-8 space-y-6 max-w-5xl mx-auto">
+    <div className="p-6 lg:p-8 space-y-6 max-w-6xl mx-auto">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Bağlantılar</h1>
-          <p className="text-sm text-muted-foreground mt-1">Müşterilerinize göndermek için geri bildirim linkleri oluşturun</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            Müşterilerinize göndermek için geri bildirim linkleri oluşturun
+          </p>
         </div>
-        <Button onClick={() => setShowCreate(true)} className="gap-2 shrink-0">
+        <Button onClick={() => setDialogOpen(true)} className="gap-2 shrink-0">
           <Plus className="size-4" />
           Yeni Bağlantı
         </Button>
@@ -143,7 +159,9 @@ export default function LinksPage() {
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Toplam Link</p>
-              <p className="text-xl font-bold">{loading ? <Skeleton className="h-7 w-12" /> : links.length}</p>
+              <p className="text-xl font-bold">
+                {loading ? <Skeleton className="h-7 w-10 inline-block" /> : links.length}
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -154,7 +172,9 @@ export default function LinksPage() {
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Aktif</p>
-              <p className="text-xl font-bold">{loading ? <Skeleton className="h-7 w-12" /> : activeCount}</p>
+              <p className="text-xl font-bold">
+                {loading ? <Skeleton className="h-7 w-10 inline-block" /> : activeCount}
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -165,137 +185,164 @@ export default function LinksPage() {
             </div>
             <div>
               <p className="text-xs text-muted-foreground">QR Oluşturulabilir</p>
-              <p className="text-xl font-bold">{loading ? <Skeleton className="h-7 w-12" /> : links.length}</p>
+              <p className="text-xl font-bold">
+                {loading ? <Skeleton className="h-7 w-10 inline-block" /> : links.length}
+              </p>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Create form */}
-      {showCreate && (
-        <Card className="border-primary/20 shadow-sm">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-semibold">Yeni Bağlantı Oluştur</CardTitle>
-              <Button variant="ghost" size="icon" className="size-7" onClick={() => setShowCreate(false)}>
-                <X className="size-4" />
-              </Button>
+      {/* Create Dialog */}
+      <Dialog
+        open={dialogOpen}
+        onOpenChange={(open) => {
+          setDialogOpen(open)
+          if (!open) setNewName("")
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-base">Yeni Bağlantı Oluştur</DialogTitle>
+            <DialogDescription>
+              Müşterilerinize göndermek için yeni bir geri bildirim bağlantısı oluşturun. Her
+              bağlantı için QR kod oluşturabilirsiniz.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleCreate} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="linkName">Bağlantı Adı</Label>
+              <Input
+                id="linkName"
+                placeholder="ör: Masa QR, Kasa Yanı, WhatsApp"
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                required
+                autoFocus
+              />
+              <p className="text-xs text-muted-foreground">
+                Bu ad yalnızca size gösterilir, müşteriler görmez.
+              </p>
             </div>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleCreate} className="flex gap-3 items-end">
-              <div className="flex-1 space-y-1.5">
-                <Label htmlFor="linkName">Bağlantı Adı</Label>
-                <Input
-                  id="linkName"
-                  placeholder="ör: Masa QR, Kasa Yanı, WhatsApp"
-                  value={newName}
-                  onChange={(e) => setNewName(e.target.value)}
-                  required
-                  autoFocus
-                />
-              </div>
-              <Button type="submit" disabled={creating} className="gap-2">
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button type="button" variant="outline">
+                  İptal
+                </Button>
+              </DialogClose>
+              <Button type="submit" disabled={creating || !newName.trim()} className="gap-2">
                 {creating ? <Spinner /> : <Plus className="size-4" />}
                 Oluştur
               </Button>
-            </form>
-          </CardContent>
-        </Card>
-      )}
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       {/* Links list */}
       {loading ? (
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           {Array.from({ length: 4 }).map((_, i) => (
             <Card key={i}>
               <CardContent className="p-4 flex items-center gap-4">
-                <Skeleton className="h-5 w-32" />
-                <Skeleton className="h-4 w-24 ml-auto" />
-                <Skeleton className="h-8 w-8" />
+                <Skeleton className="h-5 w-36" />
+                <Skeleton className="h-4 w-28 ml-auto" />
+                <Skeleton className="h-8 w-8 rounded-md" />
+                <Skeleton className="h-8 w-8 rounded-md" />
               </CardContent>
             </Card>
           ))}
         </div>
       ) : links.length === 0 ? (
         <Card className="border-dashed">
-          <CardContent className="flex flex-col items-center justify-center h-48 gap-3 text-muted-foreground">
-            <QrCode className="size-10 opacity-40" />
-            <div className="text-center">
-              <p className="text-sm font-medium">Henüz bağlantı yok</p>
-              <p className="text-xs mt-1">Müşterileriniz için ilk bağlantıyı oluşturun</p>
+          <CardContent className="flex flex-col items-center justify-center h-52 gap-4 text-muted-foreground">
+            <div className="size-14 rounded-2xl bg-muted flex items-center justify-center">
+              <QrCode className="size-7 opacity-50" />
             </div>
+            <div className="text-center">
+              <p className="text-sm font-medium text-foreground">Henüz bağlantı yok</p>
+              <p className="text-xs mt-1">
+                Müşterileriniz için ilk geri bildirim bağlantısını oluşturun
+              </p>
+            </div>
+            <Button size="sm" className="gap-2" onClick={() => setDialogOpen(true)}>
+              <Plus className="size-3.5" />
+              İlk Bağlantıyı Oluştur
+            </Button>
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-3">
+        <div className="border rounded-xl overflow-hidden bg-card divide-y">
           {links.map((link) => (
-            <Card
-              key={link.id}
-              className="overflow-hidden transition-shadow hover:shadow-md group"
-            >
-              <CardContent className="p-4 flex items-center gap-4">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <p className="font-semibold text-sm truncate">{link.name}</p>
-                    {link.is_active && (
-                      <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-600">
-                        Aktif
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <p className="text-xs text-muted-foreground font-mono truncate">/f/{link.slug}</p>
-                    <span className="text-[11px] text-muted-foreground/50">
-                      {new Date(link.created_at).toLocaleDateString("tr-TR", { day: "numeric", month: "short", year: "numeric" })}
+            <div key={link.id} className="flex items-center gap-4 px-4 py-3.5 hover:bg-muted/30 transition-colors group">
+              {/* Link info */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <p className="font-semibold text-sm truncate">{link.name}</p>
+                  {link.is_active && (
+                    <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-600 shrink-0">
+                      Aktif
                     </span>
-                  </div>
+                  )}
                 </div>
-                <div className="flex items-center gap-1 shrink-0">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="size-8 text-muted-foreground hover:text-foreground"
-                    title="Linki aç"
-                    onClick={() => window.open(linkUrl(link.slug), "_blank")}
-                  >
-                    <ExternalLink className="size-3.5" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="size-8 text-muted-foreground hover:text-foreground"
-                    title="Kopyala"
-                    onClick={() => copyLink(link.slug)}
-                  >
-                    {copiedSlug === link.slug ? (
-                      <CheckCircle2 className="size-3.5 text-emerald-500" />
-                    ) : (
-                      <Copy className="size-3.5" />
-                    )}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="size-8 text-muted-foreground hover:text-foreground"
-                    title="QR Kod"
-                    onClick={() => setQrTarget(link)}
-                  >
-                    <QrCode className="size-3.5" />
-                  </Button>
-                  <Separator orientation="vertical" className="h-5 mx-0.5" />
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="size-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                    title="Sil"
-                    onClick={() => handleDelete(link.id, link.name)}
-                  >
-                    <Trash2 className="size-3.5" />
-                  </Button>
+                <div className="flex items-center gap-3 mt-0.5">
+                  <p className="text-xs text-muted-foreground font-mono">/f/{link.slug}</p>
+                  <span className="flex items-center gap-1 text-[11px] text-muted-foreground/60">
+                    <Calendar className="size-3" />
+                    {new Date(link.created_at).toLocaleDateString("tr-TR", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })}
+                  </span>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+
+              {/* Actions */}
+              <div className="flex items-center gap-0.5 shrink-0 opacity-70 group-hover:opacity-100 transition-opacity">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-8 text-muted-foreground hover:text-foreground"
+                  title="Linki aç"
+                  onClick={() => window.open(linkUrl(link.slug), "_blank")}
+                >
+                  <ExternalLink className="size-3.5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-8 text-muted-foreground hover:text-foreground"
+                  title="Kopyala"
+                  onClick={() => copyLink(link.slug)}
+                >
+                  {copiedSlug === link.slug ? (
+                    <CheckCircle2 className="size-3.5 text-emerald-500" />
+                  ) : (
+                    <Copy className="size-3.5" />
+                  )}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-8 text-muted-foreground hover:text-foreground"
+                  title="QR Kod"
+                  onClick={() => setQrTarget(link)}
+                >
+                  <QrCode className="size-3.5" />
+                </Button>
+                <Separator orientation="vertical" className="h-4 mx-1" />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                  title="Sil"
+                  onClick={() => handleDelete(link.id, link.name)}
+                >
+                  <Trash2 className="size-3.5" />
+                </Button>
+              </div>
+            </div>
           ))}
         </div>
       )}
@@ -307,19 +354,18 @@ export default function LinksPage() {
           onClick={(e) => e.target === e.currentTarget && setQrTarget(null)}
         >
           <Card className="w-full max-w-sm shadow-2xl border-0">
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
+            <CardContent className="p-6 space-y-5">
+              <div className="flex items-start justify-between">
                 <div>
-                  <CardTitle className="text-base font-semibold">{qrTarget.name}</CardTitle>
-                  <CardDescription className="font-mono text-[11px]">/f/{qrTarget.slug}</CardDescription>
+                  <p className="font-semibold text-base">{qrTarget.name}</p>
+                  <p className="font-mono text-xs text-muted-foreground mt-0.5">/f/{qrTarget.slug}</p>
                 </div>
-                <Button variant="ghost" size="icon" className="size-8" onClick={() => setQrTarget(null)}>
+                <Button variant="ghost" size="icon" className="size-8 -mt-1 -mr-1" onClick={() => setQrTarget(null)}>
                   <X className="size-4" />
                 </Button>
               </div>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex justify-center p-5 bg-white rounded-xl border">
+
+              <div className="flex justify-center p-6 bg-white rounded-xl border">
                 <QRCodeSVG
                   ref={qrRef}
                   value={linkUrl(qrTarget.slug)}
@@ -331,7 +377,9 @@ export default function LinksPage() {
 
               <div className="space-y-2">
                 <div className="flex items-center gap-2 bg-muted rounded-lg px-3 py-2.5">
-                  <p className="text-xs text-muted-foreground font-mono flex-1 truncate">{linkUrl(qrTarget.slug)}</p>
+                  <p className="text-xs text-muted-foreground font-mono flex-1 truncate">
+                    {linkUrl(qrTarget.slug)}
+                  </p>
                   <Button
                     variant="ghost"
                     size="icon"
