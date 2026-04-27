@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react"
 import { Outlet, Link, useLocation } from "react-router"
 import { useAuthStore } from "@/store/auth-store"
 import AuthProvider from "@/providers/auth-provider"
+import OnboardingDialog from "@/components/onboarding-dialog"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
@@ -321,6 +322,8 @@ export default function AppLayout() {
           </main>
         </div>
       </div>
+
+      <OnboardingDialog />
     </AuthProvider>
   )
 }

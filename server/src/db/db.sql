@@ -75,3 +75,23 @@ CREATE INDEX idx_feedback_links_slug ON feedback_links(slug);
 CREATE INDEX idx_feedbacks_business_id ON feedbacks(business_id);
 CREATE INDEX idx_feedbacks_link_id ON feedbacks(link_id);
 CREATE INDEX idx_feedback_verification_codes_feedback_id ON feedback_verification_codes(feedback_id);
+
+CREATE TABLE business_profiles (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    business_id UUID NOT NULL UNIQUE REFERENCES businesses(id) ON DELETE CASCADE,
+    sector VARCHAR(100),
+    description TEXT,
+    phone VARCHAR(50),
+    website VARCHAR(255),
+    address TEXT,
+    city VARCHAR(100),
+    country VARCHAR(100),
+    opening_hours JSONB,
+    logo_url VARCHAR(500),
+    social_links JSONB,
+    onboarding_completed BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX idx_business_profiles_business_id ON business_profiles(business_id);

@@ -40,4 +40,31 @@ export class AccountController {
       next(err);
     }
   };
+
+  getBusinessProfile = async (req, res, next) => {
+    try {
+      const data = await this.accountService.getBusinessProfile(req.user.id);
+      res.status(200).json({ success: true, data });
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  upsertBusinessProfile = async (req, res, next) => {
+    try {
+      const data = await this.accountService.upsertBusinessProfile(req.user.id, req.body);
+      res.status(200).json({ success: true, data, message: 'İşletme profili güncellendi' });
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  completeOnboarding = async (req, res, next) => {
+    try {
+      const data = await this.accountService.completeOnboarding(req.user.id);
+      res.status(200).json({ success: true, data, message: 'Onboarding tamamlandı' });
+    } catch (err) {
+      next(err);
+    }
+  };
 }

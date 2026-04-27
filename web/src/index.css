@@ -246,3 +246,11 @@
 .recharts-bar-rectangle path {
   fill: var(--primary) !important;
 }
+
+@keyframes fill-bar {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+.animate-fill-bar {
+  animation: fill-bar 5s linear forwards;
+}

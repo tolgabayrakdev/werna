@@ -6,6 +6,7 @@ export interface Business {
   id: string
   name: string
   email: string
+  onboardingCompleted?: boolean
 }
 
 interface AuthState {
@@ -20,6 +21,7 @@ interface AuthState {
   logout: () => Promise<void>
   checkAuth: () => Promise<boolean>
   extendSession: () => Promise<void>
+  setOnboardingCompleted: (val: boolean) => void
 }
 
 export const useAuthStore = create<AuthState>()((set) => ({
@@ -75,6 +77,10 @@ export const useAuthStore = create<AuthState>()((set) => ({
       return false
     }
   },
+  setOnboardingCompleted: (val) =>
+    set((state) => ({
+      user: state.user ? { ...state.user, onboardingCompleted: val } : null,
+    })),
 }))
 
 export const useIsAuthenticated = () => useAuthStore((state) => state.isAuthenticated)

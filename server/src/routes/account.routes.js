@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { AccountController } from '../controller/account.controller.js';
 import { authenticate } from '../middleware/auth.js';
 import { validate } from '../middleware/validation.js';
-import { updatePasswordSchema } from '../schemas/account.schema.js';
+import { updatePasswordSchema, businessProfileSchema } from '../schemas/account.schema.js';
 import { accountLimiter } from '../middleware/rateLimiter.js';
 
 const router = Router();
@@ -19,5 +19,14 @@ router.patch(
   accountController.updatePassword
 );
 router.delete('/me', authenticate, accountController.deleteAccount);
+
+router.get('/me/profile', authenticate, accountController.getBusinessProfile);
+router.post(
+  '/me/profile',
+  authenticate,
+  validate(businessProfileSchema),
+  accountController.upsertBusinessProfile
+);
+router.patch('/me/profile/complete', authenticate, accountController.completeOnboarding);
 
 export default router;
