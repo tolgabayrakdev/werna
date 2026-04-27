@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { PasswordInput } from "@/components/ui/password-input"
 import { Spinner } from "@/components/ui/spinner"
 import { useAuthStore } from "@/store/auth-store"
-import type { User } from "@/store/auth-store"
+import type { Business } from "@/store/auth-store"
 import { apiClient, ApiClientError } from "@/lib/api-client"
 import { toast } from "sonner"
 import { Pencil, TriangleAlertIcon } from "lucide-react"
@@ -16,25 +16,25 @@ export default function Settings() {
   // --- Profile ---
   const [profileEditing, setProfileEditing] = useState(false)
   const [profileForm, setProfileForm] = useState({
-    username: user?.username ?? "",
+    name: user?.name ?? "",
     email: user?.email ?? "",
   })
   const [profileLoading, setProfileLoading] = useState(false)
 
   const handleProfileEdit = () => {
-    setProfileForm({ username: user?.username ?? "", email: user?.email ?? "" })
+    setProfileForm({ name: user?.name ?? "", email: user?.email ?? "" })
     setProfileEditing(true)
   }
 
   const handleProfileCancel = () => {
     setProfileEditing(false)
-    setProfileForm({ username: user?.username ?? "", email: user?.email ?? "" })
+    setProfileForm({ name: user?.name ?? "", email: user?.email ?? "" })
   }
 
   const handleProfileSave = async () => {
     setProfileLoading(true)
     try {
-      const res = await apiClient.patch<{ success: boolean; data: User }>("/api/account/me", profileForm)
+      const res = await apiClient.patch<{ success: boolean; data: Business }>("/api/account/me", profileForm)
       useAuthStore.setState({ user: res.data })
       setProfileEditing(false)
       toast.success("Profil bilgileri güncellendi.")
@@ -101,25 +101,23 @@ export default function Settings() {
 
   return (
     <div className="p-8 space-y-8">
-      {/* Page header */}
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Ayarlar</h1>
-        <p className="text-sm text-muted-foreground mt-1">Hesap bilgilerinizi ve güvenlik ayarlarınızı yönetin.</p>
+        <p className="text-sm text-muted-foreground mt-1">İşletme bilgilerinizi ve güvenlik ayarlarınızı yönetin.</p>
       </div>
 
-      {/* Profile */}
       <SettingsSection
-        title="Profil Bilgileri"
-        description="Kullanıcı adınız ve e-posta adresiniz hesabınızı tanımlar."
+        title="İşletme Bilgileri"
+        description="İşletme adınız ve e-posta adresiniz hesabınızı tanımlar."
       >
         <div className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <Label htmlFor="username">Kullanıcı Adı</Label>
+              <Label htmlFor="name">İşletme Adı</Label>
               <Input
-                id="username"
-                value={profileEditing ? profileForm.username : (user?.username ?? "")}
-                onChange={(e) => setProfileForm((p) => ({ ...p, username: e.target.value }))}
+                id="name"
+                value={profileEditing ? profileForm.name : (user?.name ?? "")}
+                onChange={(e) => setProfileForm((p) => ({ ...p, name: e.target.value }))}
                 readOnly={!profileEditing}
                 className={!profileEditing ? "bg-muted/40 cursor-default" : ""}
               />
@@ -159,7 +157,6 @@ export default function Settings() {
 
       <Divider />
 
-      {/* Password */}
       <SettingsSection
         title="Şifre"
         description="Hesabınızı güvende tutmak için düzenli aralıklarla şifrenizi güncelleyin."
@@ -168,11 +165,7 @@ export default function Settings() {
           <div className="space-y-4">
             <div className="space-y-1.5">
               <Label>Mevcut Şifre</Label>
-              <Input
-                value="••••••••••"
-                readOnly
-                className="bg-muted/40 cursor-default tracking-widest max-w-sm"
-              />
+              <Input value="••••••••••" readOnly className="bg-muted/40 cursor-default tracking-widest max-w-sm" />
             </div>
             <div className="flex justify-end">
               <Button variant="outline" onClick={() => setPasswordEditing(true)} className="gap-1.5">
@@ -198,10 +191,7 @@ export default function Settings() {
                 <PasswordInput
                   id="newPassword"
                   value={passwordForm.newPassword}
-                  onChange={(e) => {
-                    setPasswordError("")
-                    setPasswordForm((p) => ({ ...p, newPassword: e.target.value }))
-                  }}
+                  onChange={(e) => { setPasswordError(""); setPasswordForm((p) => ({ ...p, newPassword: e.target.value })) }}
                 />
               </div>
               <div className="space-y-1.5">
@@ -209,28 +199,16 @@ export default function Settings() {
                 <PasswordInput
                   id="confirmPassword"
                   value={passwordForm.confirmPassword}
-                  onChange={(e) => {
-                    setPasswordError("")
-                    setPasswordForm((p) => ({ ...p, confirmPassword: e.target.value }))
-                  }}
+                  onChange={(e) => { setPasswordError(""); setPasswordForm((p) => ({ ...p, confirmPassword: e.target.value })) }}
                 />
               </div>
             </div>
-            {passwordError && (
-              <p className="text-destructive text-xs">{passwordError}</p>
-            )}
+            {passwordError && <p className="text-destructive text-xs">{passwordError}</p>}
             <div className="flex items-center justify-end gap-2 pt-1">
-              <Button variant="outline" onClick={handlePasswordCancel} disabled={passwordLoading}>
-                İptal
-              </Button>
+              <Button variant="outline" onClick={handlePasswordCancel} disabled={passwordLoading}>İptal</Button>
               <Button
                 onClick={handlePasswordSave}
-                disabled={
-                  passwordLoading ||
-                  !passwordForm.currentPassword ||
-                  !passwordForm.newPassword ||
-                  !passwordForm.confirmPassword
-                }
+                disabled={passwordLoading || !passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword}
                 className="min-w-24"
               >
                 {passwordLoading && <Spinner className="mr-2" />}
@@ -243,10 +221,9 @@ export default function Settings() {
 
       <Divider />
 
-      {/* Danger Zone */}
       <SettingsSection
         title="Tehlikeli Alan"
-        description="Hesabınızı kalıcı olarak silin. Bu işlem geri alınamaz."
+        description="Hesabınızı kalıcı olarak silin. Tüm bağlantılar ve geri bildirimler de silinir."
         danger
       >
         {!deleteStep ? (
@@ -268,27 +245,23 @@ export default function Settings() {
               <p className="text-sm font-medium">Bu işlem geri alınamaz.</p>
             </div>
             <p className="text-sm text-muted-foreground">
-              Onaylamak için kullanıcı adınızı yazın:{" "}
-              <span className="font-semibold text-foreground">{user?.username}</span>
+              Onaylamak için işletme adınızı yazın:{" "}
+              <span className="font-semibold text-foreground">{user?.name}</span>
             </p>
             <Input
               value={deleteConfirm}
               onChange={(e) => setDeleteConfirm(e.target.value)}
-              placeholder={user?.username}
+              placeholder={user?.name}
               className="max-w-sm"
             />
             <div className="flex gap-2 justify-end">
-              <Button
-                variant="outline"
-                onClick={() => { setDeleteStep(false); setDeleteConfirm("") }}
-                disabled={deleteLoading}
-              >
+              <Button variant="outline" onClick={() => { setDeleteStep(false); setDeleteConfirm("") }} disabled={deleteLoading}>
                 İptal
               </Button>
               <Button
                 variant="destructive"
                 onClick={handleDeleteAccount}
-                disabled={deleteConfirm !== user?.username || deleteLoading}
+                disabled={deleteConfirm !== user?.name || deleteLoading}
                 className="min-w-28"
               >
                 {deleteLoading && <Spinner className="mr-2" />}
@@ -302,12 +275,7 @@ export default function Settings() {
   )
 }
 
-function SettingsSection({
-  title,
-  description,
-  children,
-  danger,
-}: {
+function SettingsSection({ title, description, children, danger }: {
   title: string
   description: string
   children: React.ReactNode
@@ -319,9 +287,7 @@ function SettingsSection({
         <h2 className={`text-sm font-semibold ${danger ? "text-destructive" : ""}`}>{title}</h2>
         <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{description}</p>
       </div>
-      <div className="lg:col-span-2">
-        {children}
-      </div>
+      <div className="lg:col-span-2">{children}</div>
     </div>
   )
 }

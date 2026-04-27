@@ -7,8 +7,8 @@ export class AccountController {
 
   getProfile = async (req, res, next) => {
     try {
-      const user = await this.accountService.getProfile(req.user.id);
-      res.status(200).json({ success: true, data: user });
+      const business = await this.accountService.getProfile(req.user.id);
+      res.status(200).json({ success: true, data: business });
     } catch (err) {
       next(err);
     }
@@ -16,8 +16,8 @@ export class AccountController {
 
   updateProfile = async (req, res, next) => {
     try {
-      const user = await this.accountService.updateProfile(req.user.id, req.body);
-      res.status(200).json({ success: true, data: user });
+      const business = await this.accountService.updateProfile(req.user.id, req.body);
+      res.status(200).json({ success: true, data: business });
     } catch (err) {
       next(err);
     }
@@ -25,7 +25,7 @@ export class AccountController {
 
   updatePassword = async (req, res, next) => {
     try {
-      const result = await this.accountService.updatePassword(req.user.id, req.body);
+      await this.accountService.updatePassword(req.user.id, req.body);
       res.status(200).json({ success: true, data: { message: 'Şifre güncellendi' } });
     } catch (err) {
       next(err);

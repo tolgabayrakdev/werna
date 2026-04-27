@@ -60,7 +60,7 @@ export default function SignIn() {
     } catch (error) {
       if (
         error instanceof ApiClientError &&
-        error.data.message === "Please verify your email first"
+        error.data.message === "Lütfen önce e-postanızı doğrulayın"
       ) {
         setCountdown(RESEND_COOLDOWN)
         setStep("verify")

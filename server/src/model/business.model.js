@@ -1,11 +1,11 @@
-export class User {
-  constructor({ id, email, username, password, roleId, isActive, createdAt, updatedAt }) {
+export class Business {
+  constructor({ id, name, email, password, isActive, isVerified, createdAt, updatedAt }) {
     this.id = id;
+    this.name = name;
     this.email = email;
-    this.username = username;
     this.password = password;
-    this.roleId = roleId;
     this.isActive = isActive;
+    this.isVerified = isVerified;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
   }
@@ -13,8 +13,8 @@ export class User {
   toJSON() {
     return {
       id: this.id,
+      name: this.name,
       email: this.email,
-      username: this.username,
       isActive: this.isActive,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,

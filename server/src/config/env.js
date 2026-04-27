@@ -36,7 +36,8 @@ const config = {
   SMTP_USER: process.env.SMTP_USER,
   SMTP_PASS: process.env.SMTP_PASS,
   EMAIL_FROM: process.env.EMAIL_FROM || 'norepengineer@gmail.com',
-  APP_URL: process.env.APP_URL || 'http://localhost:5173',
+  APP_URL: process.env.APP_URL || 'http://localhost:5000',
+  CLIENT_URL: process.env.CLIENT_URL || 'http://localhost:5173',
 };
 
 export default config;

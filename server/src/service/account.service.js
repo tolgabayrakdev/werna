@@ -1,49 +1,64 @@
-import { UserRepository } from '../repository/user.repository.js';
-import { NotFoundError, ValidationError } from '../exceptions/index.js';
+import { BusinessRepository } from '../repository/business.repository.js';
+import { NotFoundError, ValidationError, ConflictError } from '../exceptions/index.js';
+import { AuthRepository } from '../repository/auth.repository.js';
 import bcrypt from 'bcryptjs';
 
 const SALT_ROUNDS = 12;
 
 export class AccountService {
   constructor() {
-    this.userRepo = new UserRepository();
+    this.businessRepo = new BusinessRepository();
+    this.authRepo = new AuthRepository();
   }
 
-  async getProfile(userId) {
-    const user = await this.userRepo.findById(userId);
-    if (!user) {
-      throw new NotFoundError('Kullanıcı bulunamadı');
+  async getProfile(businessId) {
+    const business = await this.businessRepo.findById(businessId);
+    if (!business) {
+      throw new NotFoundError('İşletme bulunamadı');
     }
-    return user;
+    const { password: _, ...safe } = business;
+    return safe;
   }
 
-  async updateProfile(userId, data) {
-    const user = await this.userRepo.findById(userId);
-    if (!user) {
-      throw new NotFoundError('Kullanıcı bulunamadı');
+  async updateProfile(businessId, data) {
+    const business = await this.businessRepo.findById(businessId);
+    if (!business) {
+      throw new NotFoundError('İşletme bulunamadı');
     }
-    return this.userRepo.updateById(userId, data);
+
+    if (data.email && data.email !== business.email) {
+      const existing = await this.authRepo.findBusinessByEmail(data.email);
+      if (existing) {
+        throw new ConflictError('Bu e-posta adresi zaten kullanılıyor');
+      }
+    }
+
+    const allowed = {};
+    if (data.name) allowed.name = data.name;
+    if (data.email) allowed.email = data.email;
+
+    return this.businessRepo.updateById(businessId, allowed);
   }
 
-  async updatePassword(userId, { currentPassword, newPassword }) {
-    const user = await this.userRepo.findById(userId);
-    if (!user) {
-      throw new NotFoundError('Kullanıcı bulunamadı');
+  async updatePassword(businessId, { currentPassword, newPassword }) {
+    const business = await this.businessRepo.findById(businessId);
+    if (!business) {
+      throw new NotFoundError('İşletme bulunamadı');
     }
 
-    const isValid = await bcrypt.compare(currentPassword, user.password);
+    const isValid = await bcrypt.compare(currentPassword, business.password);
     if (!isValid) {
       throw new ValidationError('Mevcut şifre yanlış');
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
-    return this.userRepo.updateById(userId, { password: hashedPassword });
+    return this.businessRepo.updateById(businessId, { password: hashedPassword });
   }
 
-  async deleteAccount(userId) {
-    const deleted = await this.userRepo.deleteById(userId);
+  async deleteAccount(businessId) {
+    const deleted = await this.businessRepo.deleteById(businessId);
     if (!deleted) {
-      throw new NotFoundError('Kullanıcı bulunamadı');
+      throw new NotFoundError('İşletme bulunamadı');
     }
     return deleted;
   }

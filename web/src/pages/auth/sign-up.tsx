@@ -15,16 +15,14 @@ export default function SignUp() {
   const [loading, setLoading] = useState(false)
   const [registered, setRegistered] = useState(false)
   const [formData, setFormData] = useState({
+    name: "",
     email: "",
-    username: "",
     password: "",
     confirmPassword: "",
-    terms: false,
   })
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.type === "checkbox" ? e.target.checked : e.target.value
-    setFormData((prev) => ({ ...prev, [e.target.name]: value }))
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -33,17 +31,13 @@ export default function SignUp() {
       toast.error("Şifreler eşleşmiyor")
       return
     }
-    if (!formData.terms) {
-      toast.error("Kullanım koşullarını kabul etmelisiniz")
-      return
-    }
-    if (formData.password.length < 8) {
-      toast.error("Şifre en az 8 karakter olmalıdır")
+    if (formData.password.length < 6) {
+      toast.error("Şifre en az 6 karakter olmalıdır")
       return
     }
     setLoading(true)
     try {
-      await register(formData.email, formData.username, formData.password)
+      await register(formData.name, formData.email, formData.password)
       setRegistered(true)
     } catch (error) {
       const message = error instanceof ApiClientError ? error.data.message : "Kayıt yapılamadı"
@@ -57,10 +51,9 @@ export default function SignUp() {
     return (
       <div className="min-h-screen grid lg:grid-cols-2">
         <AuthLeftPanel
-          heading={<>Hesabınız<br />oluşturuldu!</>}
+          heading={<>İşletmeniz<br />oluşturuldu!</>}
           description="E-posta adresinizi doğruladıktan sonra platformun tüm özelliklerine erişebilirsiniz."
         />
-
         <div className="flex items-center justify-center p-8">
           <div className="w-full max-w-md space-y-8 text-center">
             <div className="lg:hidden">
@@ -69,7 +62,6 @@ export default function SignUp() {
                 <span className="text-2xl font-semibold tracking-tight">Werna</span>
               </div>
             </div>
-
             <div className="flex flex-col items-center gap-4">
               <div className="size-16 rounded-full bg-emerald-500/10 flex items-center justify-center">
                 <svg className="size-8 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -79,11 +71,10 @@ export default function SignUp() {
               <div className="space-y-2">
                 <h2 className="text-2xl font-semibold tracking-tight">Hesabınız oluşturuldu</h2>
                 <p className="text-sm text-muted-foreground max-w-sm">
-                  Hesabınız başarıyla oluşturuldu. E-posta adresinizi doğruladıktan sonra giriş yapabilirsiniz.
+                  Hesabınız başarıyla oluşturuldu. Giriş yaptığınızda e-posta doğrulaması yapmanız istenecek.
                 </p>
               </div>
             </div>
-
             <Link to="/sign-in">
               <Button className="w-full h-11">Giriş Yap</Button>
             </Link>
@@ -96,46 +87,45 @@ export default function SignUp() {
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
       <AuthLeftPanel
-        heading={<>Yeni bir başlangıç<br />yapın</>}
-        description="Dakikalar içinde hesap oluşturun ve platformumuzun tüm avantajlarından yararlanın."
+        heading={<>İşletmenizi<br />platforma taşıyın</>}
+        description="Müşterilerinizden geri bildirim toplayın, analiz edin ve işletmenizi geliştirin."
       />
-
       <div className="flex items-center justify-center p-8">
         <div className="w-full max-w-md space-y-8">
           <div className="lg:hidden text-center">
             <h1 className="text-2xl font-semibold tracking-tight">Werna</h1>
-            <p className="text-sm text-muted-foreground mt-1">Hesap oluşturun</p>
+            <p className="text-sm text-muted-foreground mt-1">İşletme hesabı oluşturun</p>
           </div>
 
           <div className="space-y-1">
             <h2 className="text-2xl font-semibold tracking-tight">Kayıt olun</h2>
-            <p className="text-sm text-muted-foreground">Bilgilerinizi girerek başlayın</p>
+            <p className="text-sm text-muted-foreground">İşletme bilgilerinizi girerek başlayın</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">E-posta</Label>
+              <Label htmlFor="name">İşletme Adı</Label>
               <Input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="ornek@email.com"
+                id="name"
+                name="name"
+                type="text"
+                placeholder="Kafe Örnek"
                 className="h-11"
-                value={formData.email}
+                value={formData.name}
                 onChange={handleChange}
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="username">Kullanıcı adı</Label>
+              <Label htmlFor="email">E-posta</Label>
               <Input
-                id="username"
-                name="username"
-                type="text"
-                placeholder="kullaniciadi"
+                id="email"
+                name="email"
+                type="email"
+                placeholder="ornek@isletme.com"
                 className="h-11"
-                value={formData.username}
+                value={formData.email}
                 onChange={handleChange}
                 required
               />
@@ -146,7 +136,7 @@ export default function SignUp() {
               <PasswordInput
                 id="password"
                 name="password"
-                placeholder="En az 8 karakter"
+                placeholder="En az 6 karakter"
                 className="h-11"
                 value={formData.password}
                 onChange={handleChange}
@@ -167,24 +157,8 @@ export default function SignUp() {
               />
             </div>
 
-            <div className="flex items-center gap-3">
-              <input
-                type="checkbox"
-                id="terms"
-                name="terms"
-                className="h-4 w-4 rounded border-input accent-primary cursor-pointer"
-                checked={formData.terms}
-                onChange={handleChange}
-                required
-              />
-              <Label htmlFor="terms" className="text-xs text-muted-foreground cursor-pointer">
-                <Link to="#" className="text-primary hover:underline">Kullanım Koşulları</Link> ve{" "}
-                <Link to="#" className="text-primary hover:underline">Gizlilik Politikası</Link>'nı okudum ve kabul ediyorum
-              </Label>
-            </div>
-
             <Button type="submit" className="w-full h-11" disabled={loading}>
-              {loading ? "Kayıt yapılıyor..." : "Hesap Oluştur"}
+              {loading ? "Hesap oluşturuluyor..." : "Hesap Oluştur"}
             </Button>
           </form>
 

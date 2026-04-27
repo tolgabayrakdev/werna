@@ -21,6 +21,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Menu,
+  Link2,
+  MessageSquare,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import wernaLogo from "@/assets/werna_logo.svg"
@@ -28,6 +30,8 @@ import { ModeToggle } from "@/components/mode-toggle"
 
 const navItems = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/links", label: "Bağlantılar", icon: Link2 },
+  { to: "/feedbacks", label: "Geri Bildirimler", icon: MessageSquare },
   { to: "/settings", label: "Ayarlar", icon: Settings },
 ]
 
@@ -64,7 +68,7 @@ function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: SidebarProp
     onMobileClose()
   }, [location.pathname, onMobileClose])
 
-  const initials = user?.username?.slice(0, 2).toUpperCase() ?? "??"
+  const initials = user?.name?.slice(0, 2).toUpperCase() ?? "??"
 
   return (
     <aside
@@ -167,7 +171,7 @@ function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: SidebarProp
             {initials}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate leading-none mb-0.5">{user?.username}</p>
+            <p className="text-sm font-medium truncate leading-none mb-0.5">{user?.name}</p>
             <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
           </div>
           <ModeToggle className="size-8 shrink-0" />

@@ -6,43 +6,39 @@ const trMessages = {
   'string.min': '{{#label}} en az {{#limit}} karakter olmalıdır',
   'string.max': '{{#label}} en fazla {{#limit}} karakter olmalıdır',
   'string.length': '{{#label}} tam {{#limit}} karakter olmalıdır',
-  'string.alphanum': '{{#label}} yalnızca harf ve rakamlardan oluşmalıdır',
   'string.pattern.base': '{{#label}} yalnızca rakamlardan oluşmalıdır',
   'any.required': '{{#label}} zorunludur',
-  'object.missing': 'userId veya email alanlarından en az biri zorunludur',
 };
 
 export const registerSchema = Joi.object({
-  email: Joi.string().email().required(),
-  username: Joi.string().alphanum().min(3).max(30).required(),
-  password: Joi.string().min(6).max(128).required(),
+  name: Joi.string().min(2).max(255).required().label('İşletme adı'),
+  email: Joi.string().email().required().label('E-posta'),
+  password: Joi.string().min(6).max(128).required().label('Şifre'),
 }).messages(trMessages);
 
 export const loginSchema = Joi.object({
-  email: Joi.string().email().required(),
-  password: Joi.string().required(),
+  email: Joi.string().email().required().label('E-posta'),
+  password: Joi.string().required().label('Şifre'),
 }).messages(trMessages);
 
 export const verifySchema = Joi.object({
-  email: Joi.string().email().required(),
+  email: Joi.string().email().required().label('E-posta'),
   code: Joi.string()
     .length(6)
     .pattern(/^\d{6}$/)
-    .required(),
+    .required()
+    .label('Doğrulama kodu'),
 }).messages(trMessages);
 
 export const resendVerificationSchema = Joi.object({
-  userId: Joi.string().uuid(),
-  email: Joi.string().email(),
-})
-  .or('userId', 'email')
-  .messages(trMessages);
+  email: Joi.string().email().required().label('E-posta'),
+}).messages(trMessages);
 
 export const forgotPasswordSchema = Joi.object({
-  email: Joi.string().email().required(),
+  email: Joi.string().email().required().label('E-posta'),
 }).messages(trMessages);
 
 export const resetPasswordSchema = Joi.object({
-  token: Joi.string().length(64).required(),
-  newPassword: Joi.string().min(8).max(128).required(),
+  token: Joi.string().length(64).required().label('Token'),
+  newPassword: Joi.string().min(8).max(128).required().label('Yeni şifre'),
 }).messages(trMessages);

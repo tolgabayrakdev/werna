@@ -11,47 +11,61 @@ import ResetPassword from "@/pages/auth/reset-password"
 import AppLayout from "@/layouts/app-layout"
 import AppIndex from "@/pages/app/index"
 import Settings from "@/pages/app/settings"
+import LinksPage from "@/pages/app/links"
+import FeedbacksPage from "@/pages/app/feedbacks"
+import FeedbackForm from "@/pages/feedback/form"
 import { ThemeProvider } from './providers/theme-provider'
 
 const router = createBrowserRouter([
-    {
-        path: "/sign-in",
-        element: <SignIn />
-    },
-    {
-        path: "/sign-up",
-        element: <SignUp />
-    },
-    {
-        path: "/forgot-password",
-        element: <ForgotPassword />
-    },
-    {
-        path: "/reset-password",
-        element: <ResetPassword />
-    },
-    {
-        path: "/",
-        element: <AppLayout />,
-        children: [
-            {
-                index: true,
-                element: <AppIndex />
-            },
-            {
-                path: "settings",
-                element: <Settings />
-            }
-        ]
-    }
+  {
+    path: "/sign-in",
+    element: <SignIn />
+  },
+  {
+    path: "/sign-up",
+    element: <SignUp />
+  },
+  {
+    path: "/forgot-password",
+    element: <ForgotPassword />
+  },
+  {
+    path: "/reset-password",
+    element: <ResetPassword />
+  },
+  {
+    path: "/f/:slug",
+    element: <FeedbackForm />
+  },
+  {
+    path: "/",
+    element: <AppLayout />,
+    children: [
+      {
+        index: true,
+        element: <AppIndex />
+      },
+      {
+        path: "links",
+        element: <LinksPage />
+      },
+      {
+        path: "feedbacks",
+        element: <FeedbacksPage />
+      },
+      {
+        path: "settings",
+        element: <Settings />
+      }
+    ]
+  }
 ])
 
 createRoot(document.getElementById('root')!).render(
-    <StrictMode>
-        <ThemeProvider storageKey='vite-ui-theme'>
-            <Toaster position="top-center" />
-            <RouterProvider router={router} />
-        </ThemeProvider>
-
-    </StrictMode>,
+  <StrictMode>
+    <ThemeProvider storageKey='vite-ui-theme'>
+      <Toaster position="top-center" />
+      <RouterProvider router={router} />
+    </ThemeProvider>
+  </StrictMode>,
 )

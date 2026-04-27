@@ -2,22 +2,21 @@ import { create } from "zustand"
 import { apiClient, ApiClientError } from "@/lib/api-client"
 import env from "@/config/env"
 
-export interface User {
+export interface Business {
   id: string
+  name: string
   email: string
-  username: string
-  role: string
 }
 
 interface AuthState {
-  user: User | null
+  user: Business | null
   isAuthenticated: boolean
   loading: boolean
   sessionExpired: boolean
   rateLimited: boolean
   setSessionExpired: (val: boolean) => void
   login: (email: string, password: string) => Promise<void>
-  register: (email: string, username: string, password: string) => Promise<void>
+  register: (name: string, email: string, password: string) => Promise<void>
   logout: () => Promise<void>
   checkAuth: () => Promise<boolean>
   extendSession: () => Promise<void>
@@ -31,11 +30,11 @@ export const useAuthStore = create<AuthState>()((set) => ({
   rateLimited: false,
   setSessionExpired: (val) => set({ sessionExpired: val }),
   login: async (email: string, password: string) => {
-    const res = await apiClient.post<{ success: boolean; data: User }>("/api/auth/login", { email, password })
+    const res = await apiClient.post<{ success: boolean; data: Business }>("/api/auth/login", { email, password })
     set({ user: res.data, isAuthenticated: true })
   },
-  register: async (email: string, username: string, password: string) => {
-    await apiClient.post("/api/auth/register", { email, username, password })
+  register: async (name: string, email: string, password: string) => {
+    await apiClient.post("/api/auth/register", { name, email, password })
   },
   logout: async () => {
     try {
@@ -51,7 +50,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
         credentials: "include",
       })
       if (!res.ok) throw new Error("Refresh failed")
-      const userRes = await apiClient.get<{ success: boolean; data: User }>("/api/account/me")
+      const userRes = await apiClient.get<{ success: boolean; data: Business }>("/api/account/me")
       set({ user: userRes.data, isAuthenticated: true, sessionExpired: false })
     } catch {
       set({ user: null, isAuthenticated: false, sessionExpired: false })
@@ -60,7 +59,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
   checkAuth: async () => {
     set({ loading: true })
     try {
-      const res = await apiClient.get<{ success: boolean; data: User }>("/api/account/me")
+      const res = await apiClient.get<{ success: boolean; data: Business }>("/api/account/me")
       set({ user: res.data, isAuthenticated: true, loading: false, rateLimited: false })
       return true
     } catch (error) {

@@ -9,7 +9,6 @@ export class AuthController {
   register = async (req, res, next) => {
     try {
       const result = await this.authService.register(req.body);
-
       res.status(201).json({
         success: true,
         data: result,
@@ -24,7 +23,6 @@ export class AuthController {
     try {
       const { email, code } = req.body;
       const result = await this.authService.verify({ email, code });
-
       res.status(200).json({
         success: true,
         data: result,
@@ -37,15 +35,8 @@ export class AuthController {
 
   resendVerificationCode = async (req, res, next) => {
     try {
-      const { userId, email } = req.body;
-      const result = userId
-        ? await this.authService.resendVerificationCode(userId)
-        : await this.authService.resendVerificationByEmail(email);
-
-      res.status(200).json({
-        success: true,
-        data: result,
-      });
+      const result = await this.authService.resendVerificationByEmail(req.body.email);
+      res.status(200).json({ success: true, data: result });
     } catch (err) {
       next(err);
     }
@@ -54,14 +45,9 @@ export class AuthController {
   login = async (req, res, next) => {
     try {
       const result = await this.authService.login(req.body);
-
       res.cookie('accessToken', result.tokens.accessToken, getAccessTokenCookieOptions());
       res.cookie('refreshToken', result.tokens.refreshToken, getRefreshTokenCookieOptions());
-
-      res.status(200).json({
-        success: true,
-        data: result.user,
-      });
+      res.status(200).json({ success: true, data: result.business });
     } catch (err) {
       next(err);
     }
@@ -71,14 +57,9 @@ export class AuthController {
     try {
       const token = req.cookies?.refreshToken;
       const result = await this.authService.refreshToken(token);
-
       res.cookie('accessToken', result.tokens.accessToken, getAccessTokenCookieOptions());
       res.cookie('refreshToken', result.tokens.refreshToken, getRefreshTokenCookieOptions());
-
-      res.status(200).json({
-        success: true,
-        data: { message: 'Token\'lar yenilendi' },
-      });
+      res.status(200).json({ success: true, data: { message: "Token'lar yenilendi" } });
     } catch (err) {
       res.clearCookie('accessToken', getAccessTokenCookieOptions());
       res.clearCookie('refreshToken', getRefreshTokenCookieOptions());
@@ -102,10 +83,7 @@ export class AuthController {
     try {
       const { token, newPassword } = req.body;
       await this.authService.resetPassword(token, newPassword);
-      res.status(200).json({
-        success: true,
-        data: { message: 'Şifre başarıyla sıfırlandı' },
-      });
+      res.status(200).json({ success: true, data: { message: 'Şifre başarıyla sıfırlandı' } });
     } catch (err) {
       next(err);
     }
@@ -115,14 +93,9 @@ export class AuthController {
     try {
       const refreshToken = req.cookies?.refreshToken;
       await this.authService.logout(req.user?.id, refreshToken);
-
       res.clearCookie('accessToken', getAccessTokenCookieOptions());
       res.clearCookie('refreshToken', getRefreshTokenCookieOptions());
-
-      res.status(200).json({
-        success: true,
-        data: { message: 'Başarıyla çıkış yapıldı' },
-      });
+      res.status(200).json({ success: true, data: { message: 'Başarıyla çıkış yapıldı' } });
     } catch (err) {
       next(err);
     }
