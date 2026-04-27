@@ -15,6 +15,7 @@ import LinksPage from "@/pages/app/links"
 import FeedbacksPage from "@/pages/app/feedbacks"
 import FeedbackForm from "@/pages/feedback/form"
 import { ThemeProvider } from './providers/theme-provider'
+import { TooltipProvider } from '@/components/ui/tooltip'
 
 const router = createBrowserRouter([
   {
@@ -64,8 +65,10 @@ const router = createBrowserRouter([
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ThemeProvider storageKey='vite-ui-theme'>
-      <Toaster position="top-center" />
-      <RouterProvider router={router} />
+      <TooltipProvider delayDuration={200}>
+        <Toaster position="top-center" />
+        <RouterProvider router={router} />
+      </TooltipProvider>
     </ThemeProvider>
   </StrictMode>,
 )

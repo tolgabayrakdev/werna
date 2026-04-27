@@ -3,17 +3,20 @@ import { Outlet, Link, useLocation } from "react-router"
 import { useAuthStore } from "@/store/auth-store"
 import AuthProvider from "@/providers/auth-provider"
 import { Button } from "@/components/ui/button"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import {
   LayoutDashboard,
   Settings,
@@ -23,10 +26,14 @@ import {
   Menu,
   Link2,
   MessageSquare,
+  Sun,
+  Moon,
+  Monitor,
+  ChevronUp,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import wernaLogo from "@/assets/werna_logo.svg"
-import { ModeToggle } from "@/components/mode-toggle"
+import { useTheme } from "@/providers/theme-provider"
 
 const navItems = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -35,32 +42,14 @@ const navItems = [
   { to: "/settings", label: "Ayarlar", icon: Settings },
 ]
 
-function LogoutDialogContent({ onConfirm }: { onConfirm: () => void }) {
-  return (
-    <AlertDialogContent size="sm">
-      <AlertDialogHeader>
-        <AlertDialogTitle>Çıkış yapmak istiyor musunuz?</AlertDialogTitle>
-        <AlertDialogDescription>
-          Oturumunuz sonlandırılacak. Tekrar giriş yapmanız gerekecek.
-        </AlertDialogDescription>
-      </AlertDialogHeader>
-      <AlertDialogFooter>
-        <AlertDialogCancel>İptal</AlertDialogCancel>
-        <AlertDialogAction onClick={onConfirm}>Çıkış Yap</AlertDialogAction>
-      </AlertDialogFooter>
-    </AlertDialogContent>
-  )
-}
-
-interface SidebarProps {
+function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: {
   collapsed: boolean
   onToggle: () => void
   mobileOpen: boolean
   onMobileClose: () => void
-}
-
-function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: SidebarProps) {
+}) {
   const { user, logout } = useAuthStore()
+  const { theme, setTheme } = useTheme()
   const location = useLocation()
   const isActive = (path: string) => location.pathname === path
 
@@ -70,14 +59,18 @@ function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: SidebarProp
 
   const initials = user?.name?.slice(0, 2).toUpperCase() ?? "??"
 
+  const handleLogout = () => {
+    if (window.confirm("Çıkış yapmak istediğinizden emin misiniz?")) {
+      logout()
+    }
+  }
+
   return (
     <aside
       className={cn(
-        "h-screen flex flex-col border-r bg-card z-40",
-        // Mobile: fixed overlay drawer
+        "h-screen flex flex-col bg-card z-40 border-r",
         "fixed inset-y-0 left-0 w-72 transition-transform duration-300 ease-in-out",
         mobileOpen ? "translate-x-0" : "-translate-x-full",
-        // Desktop: sticky, collapsible, always visible
         "lg:sticky lg:top-0 lg:translate-x-0 lg:transition-[width] lg:duration-300",
         collapsed ? "lg:w-16" : "lg:w-64",
       )}
@@ -85,20 +78,20 @@ function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: SidebarProp
       {/* Header */}
       <div
         className={cn(
-          "flex items-center h-16 border-b px-3 shrink-0",
+          "flex items-center h-16 px-3 shrink-0 border-b",
           collapsed ? "lg:justify-center" : "justify-between"
         )}
       >
         {/* Mobile: always show logo */}
         <div className="flex items-center gap-2 lg:hidden">
           <img src={wernaLogo} alt="Werna" className="h-7 w-auto" />
-          <span className="text-lg font-semibold tracking-tight select-none">Werna</span>
+          <span className="text-lg font-bold tracking-tight select-none">Werna</span>
         </div>
         {/* Desktop: hide when collapsed */}
         {!collapsed && (
           <div className="hidden lg:flex items-center gap-2">
             <img src={wernaLogo} alt="Werna" className="h-7 w-auto" />
-            <span className="text-lg font-semibold tracking-tight select-none">Werna</span>
+            <span className="text-lg font-bold tracking-tight select-none">Werna</span>
           </div>
         )}
         {/* Desktop collapse toggle */}
@@ -122,72 +115,142 @@ function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: SidebarProp
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 p-2 space-y-0.5 overflow-hidden">
-        {navItems.map(({ to, label, icon: Icon }) => (
-          <Button
-            key={to}
-            asChild
-            variant={isActive(to) ? "secondary" : "ghost"}
-            className={cn(
-              "w-full h-10",
-              collapsed ? "lg:justify-center lg:px-0 justify-start gap-3 px-3" : "justify-start gap-3 px-3"
-            )}
-            title={collapsed ? label : undefined}
-          >
-            <Link to={to}>
-              <Icon className="size-4 shrink-0" />
-              <span className={cn("truncate", collapsed && "lg:hidden")}>{label}</span>
-            </Link>
-          </Button>
-        ))}
+      <nav className="flex-1 p-3 space-y-1 overflow-hidden">
+        {navItems.map(({ to, label, icon: Icon }) => {
+          const active = isActive(to)
+          return (
+            <Tooltip key={to} delayDuration={0}>
+              <TooltipTrigger asChild>
+                <Button
+                  asChild
+                  variant="ghost"
+                  className={cn(
+                    "w-full h-10 relative overflow-hidden transition-all duration-200",
+                    active
+                      ? "bg-primary/8 text-primary font-medium hover:bg-primary/12"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                    collapsed
+                      ? "lg:justify-center lg:px-0 justify-start gap-3 px-3"
+                      : "justify-start gap-3 px-3"
+                  )}
+                  title={collapsed ? label : undefined}
+                >
+                  <Link to={to}>
+                    {/* Active indicator - left border */}
+                    {active && (
+                      <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 bg-primary rounded-r-full" />
+                    )}
+                    <Icon className={cn("size-4 shrink-0", active && "text-primary")} />
+                    <span className={cn("truncate", collapsed && "lg:hidden")}>{label}</span>
+                  </Link>
+                </Button>
+              </TooltipTrigger>
+              {collapsed && (
+                <TooltipContent side="right">
+                  {label}
+                </TooltipContent>
+              )}
+            </Tooltip>
+          )
+        })}
       </nav>
 
-      {/* User / Logout */}
-      <div className={cn("border-t p-2 shrink-0", collapsed && "lg:flex lg:flex-col lg:items-center lg:gap-1")}>
-        {/* Collapsed desktop */}
-        <div className={cn("hidden", collapsed && "lg:flex lg:flex-col lg:items-center lg:gap-1")}>
-          <div className="size-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-semibold text-primary select-none">
-            {initials}
-          </div>
-          <ModeToggle className="size-8" />
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="size-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                title="Çıkış Yap"
-              >
-                <LogOut className="size-4" />
+      {/* Footer */}
+      <div className="border-t p-3 shrink-0">
+        {/* Collapsed desktop: avatar only + dropdown */}
+        <div className={cn("hidden", collapsed && "lg:flex lg:flex-col lg:items-center")}>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="size-10 p-0 rounded-full hover:bg-muted">
+                <Avatar className="size-9 border">
+                  <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
+                    {initials}
+                  </AvatarFallback>
+                </Avatar>
               </Button>
-            </AlertDialogTrigger>
-            <LogoutDialogContent onConfirm={logout} />
-          </AlertDialog>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent side="right" align="end" className="w-48">
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium">{user?.name}</p>
+                  <p className="text-xs text-muted-foreground break-all">{user?.email}</p>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => setTheme("light")}>
+                <Sun className="mr-2 size-4" />
+                Aydınlık
+                {theme === "light" && <span className="ml-auto text-xs text-muted-foreground">✓</span>}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("dark")}>
+                <Moon className="mr-2 size-4" />
+                Karanlık
+                {theme === "dark" && <span className="ml-auto text-xs text-muted-foreground">✓</span>}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("system")}>
+                <Monitor className="mr-2 size-4" />
+                Sistem
+                {theme === "system" && <span className="ml-auto text-xs text-muted-foreground">✓</span>}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive focus:bg-destructive/10">
+                <LogOut className="mr-2 size-4" />
+                Çıkış Yap
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         {/* Expanded (mobile always, desktop when not collapsed) */}
-        <div className={cn("flex items-center gap-2 px-1", collapsed && "lg:hidden")}>
-          <div className="size-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-semibold text-primary shrink-0 select-none">
-            {initials}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate leading-none mb-0.5">{user?.name}</p>
-            <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
-          </div>
-          <ModeToggle className="size-8 shrink-0" />
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
+        <div className={cn(collapsed && "lg:hidden")}>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
-                size="icon"
-                className="size-8 shrink-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                title="Çıkış Yap"
+                className="w-full h-auto px-2 py-2 justify-start gap-2 hover:bg-muted"
               >
-                <LogOut className="size-4" />
+                <Avatar className="size-9 border shrink-0">
+                  <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
+                    {initials}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0 text-left">
+                  <p className="text-sm font-semibold truncate leading-tight">{user?.name}</p>
+                  <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                </div>
+                <ChevronUp className="size-3.5 text-muted-foreground shrink-0" />
               </Button>
-            </AlertDialogTrigger>
-            <LogoutDialogContent onConfirm={logout} />
-          </AlertDialog>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent side="top" align="start" className="w-56">
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium">{user?.name}</p>
+                  <p className="text-xs text-muted-foreground break-all">{user?.email}</p>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => setTheme("light")}>
+                <Sun className="mr-2 size-4" />
+                Aydınlık Tema
+                {theme === "light" && <span className="ml-auto text-xs text-muted-foreground">✓</span>}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("dark")}>
+                <Moon className="mr-2 size-4" />
+                Karanlık Tema
+                {theme === "dark" && <span className="ml-auto text-xs text-muted-foreground">✓</span>}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("system")}>
+                <Monitor className="mr-2 size-4" />
+                Sistem Teması
+                {theme === "system" && <span className="ml-auto text-xs text-muted-foreground">✓</span>}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive focus:bg-destructive/10">
+                <LogOut className="mr-2 size-4" />
+                Çıkış Yap
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </aside>
@@ -226,7 +289,7 @@ export default function AppLayout() {
             </Button>
             <div className="flex items-center gap-2">
               <img src={wernaLogo} alt="Werna" className="h-6 w-auto" />
-              <span className="text-base font-semibold tracking-tight">Werna</span>
+              <span className="text-base font-bold tracking-tight">Werna</span>
             </div>
           </header>
 

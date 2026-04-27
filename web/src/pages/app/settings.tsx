@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { PasswordInput } from "@/components/ui/password-input"
 import { Spinner } from "@/components/ui/spinner"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { useAuthStore } from "@/store/auth-store"
 import type { Business } from "@/store/auth-store"
 import { apiClient, ApiClientError } from "@/lib/api-client"
@@ -100,198 +101,184 @@ export default function Settings() {
   }
 
   return (
-    <div className="p-8 space-y-8">
+    <div className="p-6 lg:p-8 space-y-8 max-w-5xl mx-auto">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Ayarlar</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Ayarlar</h1>
         <p className="text-sm text-muted-foreground mt-1">İşletme bilgilerinizi ve güvenlik ayarlarınızı yönetin.</p>
       </div>
 
-      <SettingsSection
-        title="İşletme Bilgileri"
-        description="İşletme adınız ve e-posta adresiniz hesabınızı tanımlar."
-      >
-        <div className="space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="name">İşletme Adı</Label>
-              <Input
-                id="name"
-                value={profileEditing ? profileForm.name : (user?.name ?? "")}
-                onChange={(e) => setProfileForm((p) => ({ ...p, name: e.target.value }))}
-                readOnly={!profileEditing}
-                className={!profileEditing ? "bg-muted/40 cursor-default" : ""}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="email">E-posta</Label>
-              <Input
-                id="email"
-                type="email"
-                value={profileEditing ? profileForm.email : (user?.email ?? "")}
-                onChange={(e) => setProfileForm((p) => ({ ...p, email: e.target.value }))}
-                readOnly={!profileEditing}
-                className={!profileEditing ? "bg-muted/40 cursor-default" : ""}
-              />
-            </div>
-          </div>
-          <div className="flex items-center justify-end gap-2 pt-1">
-            {profileEditing ? (
-              <>
-                <Button variant="outline" onClick={handleProfileCancel} disabled={profileLoading}>
-                  İptal
-                </Button>
-                <Button onClick={handleProfileSave} disabled={profileLoading} className="min-w-24">
-                  {profileLoading && <Spinner className="mr-2" />}
-                  Kaydet
-                </Button>
-              </>
-            ) : (
-              <Button variant="outline" onClick={handleProfileEdit} className="gap-1.5">
-                <Pencil className="size-3.5" />
-                Düzenle
-              </Button>
-            )}
-          </div>
-        </div>
-      </SettingsSection>
-
-      <Divider />
-
-      <SettingsSection
-        title="Şifre"
-        description="Hesabınızı güvende tutmak için düzenli aralıklarla şifrenizi güncelleyin."
-      >
-        {!passwordEditing ? (
-          <div className="space-y-4">
-            <div className="space-y-1.5">
-              <Label>Mevcut Şifre</Label>
-              <Input value="••••••••••" readOnly className="bg-muted/40 cursor-default tracking-widest max-w-sm" />
-            </div>
-            <div className="flex justify-end">
-              <Button variant="outline" onClick={() => setPasswordEditing(true)} className="gap-1.5">
-                <Pencil className="size-3.5" />
-                Değiştir
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-4">
+      <div className="space-y-6">
+        {/* Profile */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base font-semibold">İşletme Bilgileri</CardTitle>
+            <CardDescription>İşletme adınız ve e-posta adresiniz hesabınızı tanımlar.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-1.5 sm:col-span-2">
-                <Label htmlFor="currentPassword">Mevcut Şifre</Label>
-                <PasswordInput
-                  id="currentPassword"
-                  value={passwordForm.currentPassword}
-                  onChange={(e) => setPasswordForm((p) => ({ ...p, currentPassword: e.target.value }))}
+              <div className="space-y-1.5">
+                <Label htmlFor="name">İşletme Adı</Label>
+                <Input
+                  id="name"
+                  value={profileEditing ? profileForm.name : (user?.name ?? "")}
+                  onChange={(e) => setProfileForm((p) => ({ ...p, name: e.target.value }))}
+                  readOnly={!profileEditing}
+                  className={!profileEditing ? "bg-muted/40 cursor-default" : ""}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="email">E-posta</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={profileEditing ? profileForm.email : (user?.email ?? "")}
+                  onChange={(e) => setProfileForm((p) => ({ ...p, email: e.target.value }))}
+                  readOnly={!profileEditing}
+                  className={!profileEditing ? "bg-muted/40 cursor-default" : ""}
+                />
+              </div>
+            </div>
+            <div className="flex items-center justify-end gap-2 pt-1">
+              {profileEditing ? (
+                <>
+                  <Button variant="outline" onClick={handleProfileCancel} disabled={profileLoading}>
+                    İptal
+                  </Button>
+                  <Button onClick={handleProfileSave} disabled={profileLoading} className="min-w-24">
+                    {profileLoading && <Spinner className="mr-2" />}
+                    Kaydet
+                  </Button>
+                </>
+              ) : (
+                <Button variant="outline" onClick={handleProfileEdit} className="gap-1.5">
+                  <Pencil className="size-3.5" />
+                  Düzenle
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Password */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base font-semibold">Şifre</CardTitle>
+            <CardDescription>Hesabınızı güvende tutmak için düzenli aralıklarla şifrenizi güncelleyin.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {!passwordEditing ? (
+              <div className="space-y-4">
+                <div className="space-y-1.5">
+                  <Label>Mevcut Şifre</Label>
+                  <Input value="••••••••••" readOnly className="bg-muted/40 cursor-default tracking-widest max-w-sm" />
+                </div>
+                <div className="flex justify-end">
+                  <Button variant="outline" onClick={() => setPasswordEditing(true)} className="gap-1.5">
+                    <Pencil className="size-3.5" />
+                    Değiştir
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-1.5 sm:col-span-2">
+                    <Label htmlFor="currentPassword">Mevcut Şifre</Label>
+                    <PasswordInput
+                      id="currentPassword"
+                      value={passwordForm.currentPassword}
+                      onChange={(e) => setPasswordForm((p) => ({ ...p, currentPassword: e.target.value }))}
+                      className="max-w-sm"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="newPassword">Yeni Şifre</Label>
+                    <PasswordInput
+                      id="newPassword"
+                      value={passwordForm.newPassword}
+                      onChange={(e) => { setPasswordError(""); setPasswordForm((p) => ({ ...p, newPassword: e.target.value })) }}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="confirmPassword">Yeni Şifre Tekrar</Label>
+                    <PasswordInput
+                      id="confirmPassword"
+                      value={passwordForm.confirmPassword}
+                      onChange={(e) => { setPasswordError(""); setPasswordForm((p) => ({ ...p, confirmPassword: e.target.value })) }}
+                    />
+                  </div>
+                </div>
+                {passwordError && <p className="text-destructive text-xs">{passwordError}</p>}
+                <div className="flex items-center justify-end gap-2 pt-1">
+                  <Button variant="outline" onClick={handlePasswordCancel} disabled={passwordLoading}>İptal</Button>
+                  <Button
+                    onClick={handlePasswordSave}
+                    disabled={passwordLoading || !passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword}
+                    className="min-w-24"
+                  >
+                    {passwordLoading && <Spinner className="mr-2" />}
+                    Kaydet
+                  </Button>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Danger Zone */}
+        <Card className="border-destructive/20">
+          <CardHeader>
+            <CardTitle className="text-base font-semibold text-destructive">Tehlikeli Alan</CardTitle>
+            <CardDescription>Hesabınızı kalıcı olarak silin. Tüm bağlantılar ve geri bildirimler de silinir.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {!deleteStep ? (
+              <div className="flex items-start justify-between gap-4 rounded-xl border border-destructive/20 bg-destructive/5 p-4">
+                <div>
+                  <p className="text-sm font-medium">Hesabı Sil</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Tüm verileriniz kalıcı olarak silinir, bu işlem geri alınamaz.
+                  </p>
+                </div>
+                <Button variant="destructive" size="sm" onClick={() => setDeleteStep(true)} className="shrink-0">
+                  Hesabı Sil
+                </Button>
+              </div>
+            ) : (
+              <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-4 space-y-4">
+                <div className="flex items-center gap-2 text-destructive">
+                  <TriangleAlertIcon className="size-4 shrink-0" />
+                  <p className="text-sm font-medium">Bu işlem geri alınamaz.</p>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Onaylamak için işletme adınızı yazın:{" "}
+                  <span className="font-semibold text-foreground">{user?.name}</span>
+                </p>
+                <Input
+                  value={deleteConfirm}
+                  onChange={(e) => setDeleteConfirm(e.target.value)}
+                  placeholder={user?.name}
                   className="max-w-sm"
                 />
+                <div className="flex gap-2 justify-end">
+                  <Button variant="outline" onClick={() => { setDeleteStep(false); setDeleteConfirm("") }} disabled={deleteLoading}>
+                    İptal
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={handleDeleteAccount}
+                    disabled={deleteConfirm !== user?.name || deleteLoading}
+                    className="min-w-28"
+                  >
+                    {deleteLoading && <Spinner className="mr-2" />}
+                    Evet, Sil
+                  </Button>
+                </div>
               </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="newPassword">Yeni Şifre</Label>
-                <PasswordInput
-                  id="newPassword"
-                  value={passwordForm.newPassword}
-                  onChange={(e) => { setPasswordError(""); setPasswordForm((p) => ({ ...p, newPassword: e.target.value })) }}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="confirmPassword">Yeni Şifre Tekrar</Label>
-                <PasswordInput
-                  id="confirmPassword"
-                  value={passwordForm.confirmPassword}
-                  onChange={(e) => { setPasswordError(""); setPasswordForm((p) => ({ ...p, confirmPassword: e.target.value })) }}
-                />
-              </div>
-            </div>
-            {passwordError && <p className="text-destructive text-xs">{passwordError}</p>}
-            <div className="flex items-center justify-end gap-2 pt-1">
-              <Button variant="outline" onClick={handlePasswordCancel} disabled={passwordLoading}>İptal</Button>
-              <Button
-                onClick={handlePasswordSave}
-                disabled={passwordLoading || !passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword}
-                className="min-w-24"
-              >
-                {passwordLoading && <Spinner className="mr-2" />}
-                Kaydet
-              </Button>
-            </div>
-          </div>
-        )}
-      </SettingsSection>
-
-      <Divider />
-
-      <SettingsSection
-        title="Tehlikeli Alan"
-        description="Hesabınızı kalıcı olarak silin. Tüm bağlantılar ve geri bildirimler de silinir."
-        danger
-      >
-        {!deleteStep ? (
-          <div className="flex items-start justify-between gap-4 rounded-xl border border-destructive/30 bg-destructive/5 p-4">
-            <div>
-              <p className="text-sm font-medium">Hesabı Sil</p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Tüm verileriniz kalıcı olarak silinir, bu işlem geri alınamaz.
-              </p>
-            </div>
-            <Button variant="destructive" size="sm" onClick={() => setDeleteStep(true)} className="shrink-0">
-              Hesabı Sil
-            </Button>
-          </div>
-        ) : (
-          <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 space-y-4">
-            <div className="flex items-center gap-2 text-destructive">
-              <TriangleAlertIcon className="size-4 shrink-0" />
-              <p className="text-sm font-medium">Bu işlem geri alınamaz.</p>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              Onaylamak için işletme adınızı yazın:{" "}
-              <span className="font-semibold text-foreground">{user?.name}</span>
-            </p>
-            <Input
-              value={deleteConfirm}
-              onChange={(e) => setDeleteConfirm(e.target.value)}
-              placeholder={user?.name}
-              className="max-w-sm"
-            />
-            <div className="flex gap-2 justify-end">
-              <Button variant="outline" onClick={() => { setDeleteStep(false); setDeleteConfirm("") }} disabled={deleteLoading}>
-                İptal
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={handleDeleteAccount}
-                disabled={deleteConfirm !== user?.name || deleteLoading}
-                className="min-w-28"
-              >
-                {deleteLoading && <Spinner className="mr-2" />}
-                Evet, Sil
-              </Button>
-            </div>
-          </div>
-        )}
-      </SettingsSection>
-    </div>
-  )
-}
-
-function SettingsSection({ title, description, children, danger }: {
-  title: string
-  description: string
-  children: React.ReactNode
-  danger?: boolean
-}) {
-  return (
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-      <div className="lg:col-span-1">
-        <h2 className={`text-sm font-semibold ${danger ? "text-destructive" : ""}`}>{title}</h2>
-        <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{description}</p>
+            )}
+          </CardContent>
+        </Card>
       </div>
-      <div className="lg:col-span-2">{children}</div>
     </div>
   )
-}
-
-function Divider() {
-  return <hr className="border-border" />
 }
