@@ -4,8 +4,8 @@ export const updatePasswordSchema = Joi.object({
   currentPassword: Joi.string().min(6).required(),
   newPassword: Joi.string().min(6).required(),
 }).messages({
-  'any.required': '{{#label}} zorunludur',
-  'string.min': '{{#label}} en az {{#limit}} karakter olmalıdır',
+  'any.required': '{{#label}} is required',
+  'string.min': '{{#label}} must be at least {{#limit}} characters',
 });
 
 export const businessProfileSchema = Joi.object({
@@ -20,5 +20,5 @@ export const businessProfileSchema = Joi.object({
   logoUrl: Joi.string().max(500).allow('').optional(),
   socialLinks: Joi.object().optional(),
 }).messages({
-  'string.max': '{{#label}} en fazla {{#limit}} karakter olabilir',
+  'string.max': '{{#label}} can be at most {{#limit}} characters',
 });

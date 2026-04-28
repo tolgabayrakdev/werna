@@ -4,25 +4,25 @@ import wernaLogo from "@/assets/werna_logo.svg"
 const features = [
   {
     icon: QrCode,
-    title: "QR ile Anında Geri Bildirim",
-    desc: "Müşterileriniz QR kodu okutarak 30 saniyede anonim geri bildirim gönderebilir",
+    title: "Instant Feedback via QR",
+    desc: "Customers can send anonymous feedback in 30 seconds by scanning a QR code",
   },
   {
     icon: MessageSquareHeart,
-    title: "Akıllı Sınıflandırma",
-    desc: "Şikayet, öneri, istek ve tebrikler otomatik olarak kategorize edilir",
+    title: "Smart Classification",
+    desc: "Complaints, suggestions, requests, and compliments are automatically categorized",
   },
   {
     icon: BarChart3,
-    title: "Gerçek Zamanlı Raporlama",
-    desc: "Anlık analitik ve aylık trend raporlarıyla işletmenizi optimize edin",
+    title: "Advanced Feedback Analytics",
+    desc: "Understand trends with in-depth charts, type breakdowns, and monthly performance insights",
   },
 ]
 
 const stats = [
-  { value: "500+", label: "İşletme" },
-  { value: "50K+", label: "Geri Bildirim" },
-  { value: "%99.9", label: "Uptime" },
+  { value: "500+", label: "Businesses" },
+  { value: "50K+", label: "Feedback" },
+  { value: "99.9%", label: "Uptime" },
 ]
 
 interface AuthLeftPanelProps {
@@ -65,7 +65,7 @@ export function AuthLeftPanel({ heading, description }: AuthLeftPanelProps) {
           <div className="space-y-3">
             <div className="inline-flex items-center gap-2 bg-white/8 border border-white/10 rounded-full px-3 py-1 text-[11px] font-medium text-white/60 tracking-wide">
               <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              Müşteri Geri Bildirim Platformu
+              Customer Feedback Platform
             </div>
             <h2 className="text-[2.4rem] font-bold leading-[1.15] tracking-tight">
               {heading}
@@ -106,7 +106,7 @@ export function AuthLeftPanel({ heading, description }: AuthLeftPanelProps) {
 
         {/* Footer */}
         <div className="flex items-center justify-between">
-          <p className="text-xs text-white/20">© 2026 Werna. Tüm hakları saklıdır.</p>
+          <p className="text-xs text-white/20">© 2026 Werna. All rights reserved.</p>
           <p className="text-[11px] text-white/20">werna.app</p>
         </div>
       </div>

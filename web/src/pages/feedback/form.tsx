@@ -13,10 +13,10 @@ import wernaLogo from "@/assets/werna_logo.svg"
 interface LinkInfo { name: string; businessName: string; slug: string }
 
 const TYPES = [
-  { value: "complaint", label: "Şikayet", icon: AlertCircle, color: "text-red-500", bg: "bg-red-500/10", border: "border-red-300 dark:border-red-800", activeBg: "bg-red-500/15" },
-  { value: "suggestion", label: "Öneri", icon: Lightbulb, color: "text-yellow-500", bg: "bg-yellow-500/10", border: "border-yellow-300 dark:border-yellow-800", activeBg: "bg-yellow-500/15" },
-  { value: "request", label: "İstek", icon: MessageSquare, color: "text-blue-500", bg: "bg-blue-500/10", border: "border-blue-300 dark:border-blue-800", activeBg: "bg-blue-500/15" },
-  { value: "compliment", label: "Tebrik", icon: ThumbsUp, color: "text-emerald-500", bg: "bg-emerald-500/10", border: "border-emerald-300 dark:border-emerald-800", activeBg: "bg-emerald-500/15" },
+  { value: "complaint", label: "Complaint", icon: AlertCircle, color: "text-red-500", bg: "bg-red-500/10", border: "border-red-300 dark:border-red-800", activeBg: "bg-red-500/15" },
+  { value: "suggestion", label: "Suggestion", icon: Lightbulb, color: "text-yellow-500", bg: "bg-yellow-500/10", border: "border-yellow-300 dark:border-yellow-800", activeBg: "bg-yellow-500/15" },
+  { value: "request", label: "Request", icon: MessageSquare, color: "text-blue-500", bg: "bg-blue-500/10", border: "border-blue-300 dark:border-blue-800", activeBg: "bg-blue-500/15" },
+  { value: "compliment", label: "Compliment", icon: ThumbsUp, color: "text-emerald-500", bg: "bg-emerald-500/10", border: "border-emerald-300 dark:border-emerald-800", activeBg: "bg-emerald-500/15" },
 ]
 
 export default function FeedbackForm() {
@@ -65,8 +65,8 @@ export default function FeedbackForm() {
       setCountdown(90)
       setStep("verify")
     } catch (err) {
-      const msg = err instanceof ApiClientError ? err.data.message : "Gönderilemedi"
-      alert(msg ?? "Bir hata oluştu")
+      const msg = err instanceof ApiClientError ? err.data.message : "Could not send"
+      alert(msg ?? "An error occurred")
     } finally {
       setSubmitting(false)
     }
@@ -79,8 +79,8 @@ export default function FeedbackForm() {
       await apiClient.post("/api/feedback/verify", { feedbackId, code })
       setStep("done")
     } catch (err) {
-      const msg = err instanceof ApiClientError ? err.data.message : "Doğrulama başarısız"
-      alert(msg ?? "Bir hata oluştu")
+      const msg = err instanceof ApiClientError ? err.data.message : "Verification failed"
+      alert(msg ?? "An error occurred")
     } finally {
       setVerifying(false)
     }
@@ -92,7 +92,7 @@ export default function FeedbackForm() {
       await apiClient.post("/api/feedback/submit", { slug, ...form })
       setCountdown(90)
     } catch {
-      alert("Kod yeniden gönderilemedi")
+      alert("Code could not be resent")
     } finally {
       setResending(false)
     }
@@ -103,8 +103,8 @@ export default function FeedbackForm() {
       <div className="min-h-screen flex items-center justify-center p-6">
         <div className="text-center space-y-3">
           <AlertCircle className="size-12 text-muted-foreground mx-auto" />
-          <h1 className="text-xl font-semibold">Bağlantı bulunamadı</h1>
-          <p className="text-sm text-muted-foreground">Bu geri bildirim bağlantısı geçersiz veya artık aktif değil.</p>
+          <h1 className="text-xl font-semibold">Link not found</h1>
+          <p className="text-sm text-muted-foreground">This feedback link is invalid or no longer active.</p>
         </div>
       </div>
     )
@@ -126,14 +126,14 @@ export default function FeedbackForm() {
             <CheckCircle2 className="size-10 text-emerald-500" />
           </div>
           <div className="space-y-2">
-            <h1 className="text-2xl font-semibold">Teşekkürler!</h1>
+            <h1 className="text-2xl font-semibold">Thank You!</h1>
             <p className="text-sm text-muted-foreground">
-              Geri bildiriminiz <strong>{linkInfo.businessName}</strong>'e iletildi. Değerli görüşünüz için teşekkür ederiz.
+              Your feedback has been forwarded to <strong>{linkInfo.businessName}</strong>. Thank you for your valuable input.
             </p>
           </div>
           <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground pt-4">
             <img src={wernaLogo} alt="Werna" className="h-4 w-auto opacity-50" />
-            <span>Werna ile gönderildi</span>
+            <span>Sent via Werna</span>
           </div>
         </div>
       </div>
@@ -146,15 +146,15 @@ export default function FeedbackForm() {
         <div className="w-full max-w-md space-y-8">
           <div className="text-center space-y-2">
             <img src={wernaLogo} alt="Werna" className="h-8 w-auto mx-auto mb-4 opacity-70" />
-            <h1 className="text-2xl font-semibold">E-posta Doğrulama</h1>
+            <h1 className="text-2xl font-semibold">Email Verification</h1>
             <p className="text-sm text-muted-foreground">
-              <strong>{form.customerEmail}</strong> adresine 6 haneli doğrulama kodu gönderildi.
+              A 6-digit verification code has been sent to <strong>{form.customerEmail}</strong>.
             </p>
           </div>
 
           <form onSubmit={handleVerify} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="code">Doğrulama Kodu</Label>
+              <Label htmlFor="code">Verification Code</Label>
               <Input
                 id="code"
                 type="text"
@@ -170,7 +170,7 @@ export default function FeedbackForm() {
             </div>
             <Button type="submit" className="w-full h-11" disabled={verifying || code.length < 6}>
               {verifying ? <Spinner className="mr-2" /> : null}
-              {verifying ? "Doğrulanıyor..." : "Geri Bildirimi Gönder"}
+              {verifying ? "Verifying..." : "Submit Feedback"}
             </Button>
           </form>
 
@@ -181,7 +181,7 @@ export default function FeedbackForm() {
               disabled={countdown > 0 || resending}
               className="text-primary hover:underline disabled:opacity-40 disabled:cursor-not-allowed transition-opacity"
             >
-              {resending ? "Gönderiliyor..." : "Kodu yeniden gönder"}
+              {resending ? "Sending..." : "Resend code"}
             </button>
             {countdown > 0 && (
               <span className="text-muted-foreground tabular-nums">{countdown}s</span>
@@ -194,7 +194,7 @@ export default function FeedbackForm() {
             className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             <ChevronLeftIcon />
-            Geri dön
+            Go back
           </button>
         </div>
       </div>
@@ -207,13 +207,13 @@ export default function FeedbackForm() {
         <div className="text-center space-y-2">
           <img src={wernaLogo} alt="Werna" className="h-7 w-auto mx-auto mb-4 opacity-70" />
           <h1 className="text-2xl font-semibold">{linkInfo.businessName}</h1>
-          <p className="text-sm text-muted-foreground">{linkInfo.name} · Geri Bildirim Formu</p>
+          <p className="text-sm text-muted-foreground">{linkInfo.name} · Feedback Form</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Type selection */}
           <div className="space-y-2">
-            <Label>Geri Bildirim Türü</Label>
+            <Label>Feedback Type</Label>
             <div className="grid grid-cols-2 gap-2">
               {TYPES.map(({ value, label, icon: Icon, color, bg, border, activeBg }) => (
                 <button
@@ -238,25 +238,25 @@ export default function FeedbackForm() {
 
           {/* Email */}
           <div className="space-y-2">
-            <Label htmlFor="email">E-posta Adresiniz</Label>
+            <Label htmlFor="email">Your Email Address</Label>
             <Input
               id="email"
               type="email"
-              placeholder="ornek@email.com"
+              placeholder="example@email.com"
               className="h-11"
               value={form.customerEmail}
               onChange={(e) => setForm((f) => ({ ...f, customerEmail: e.target.value }))}
               required
             />
-            <p className="text-xs text-muted-foreground">Geri bildiriminizi doğrulamak için kod gönderilecektir.</p>
+            <p className="text-xs text-muted-foreground">A code will be sent to verify your feedback.</p>
           </div>
 
           {/* Message */}
           <div className="space-y-2">
-            <Label htmlFor="message">Mesajınız</Label>
+            <Label htmlFor="message">Your Message</Label>
             <Textarea
               id="message"
-              placeholder="Düşüncelerinizi buraya yazın..."
+              placeholder="Write your thoughts here..."
               className="min-h-28 resize-none"
               value={form.message}
               onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))}
@@ -273,13 +273,13 @@ export default function FeedbackForm() {
             disabled={submitting || !form.type || form.message.length < 10}
           >
             {submitting ? <Spinner className="mr-2" /> : null}
-            {submitting ? "Gönderiliyor..." : "Devam Et"}
+            {submitting ? "Sending..." : "Continue"}
           </Button>
         </form>
 
         <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
           <img src={wernaLogo} alt="Werna" className="h-4 w-auto opacity-50" />
-          <span>Werna ile güçlendirildi</span>
+          <span>Powered by Werna</span>
         </div>
       </div>
     </div>

@@ -48,9 +48,9 @@ import { useTheme } from "@/providers/theme-provider"
 
 const navItems = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/links", label: "Bağlantılar", icon: Link2 },
-  { to: "/feedbacks", label: "Geri Bildirimler", icon: MessageSquare },
-  { to: "/settings", label: "Ayarlar", icon: Settings },
+  { to: "/links", label: "Links", icon: Link2 },
+  { to: "/feedbacks", label: "Feedback", icon: MessageSquare },
+  { to: "/settings", label: "Settings", icon: Settings },
 ]
 
 function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: {
@@ -186,23 +186,23 @@ function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => setTheme("light")}>
                   <Sun className="mr-2 size-4" />
-                  Aydınlık
+                  Light
                   {theme === "light" && <span className="ml-auto text-xs text-muted-foreground">✓</span>}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setTheme("dark")}>
                   <Moon className="mr-2 size-4" />
-                  Karanlık
+                  Dark
                   {theme === "dark" && <span className="ml-auto text-xs text-muted-foreground">✓</span>}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setTheme("system")}>
                   <Monitor className="mr-2 size-4" />
-                  Sistem
+                  System
                   {theme === "system" && <span className="ml-auto text-xs text-muted-foreground">✓</span>}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => setLogoutOpen(true)} className="text-destructive focus:text-destructive focus:bg-destructive/10">
                   <LogOut className="mr-2 size-4" />
-                  Çıkış Yap
+                  Sign Out
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -238,23 +238,23 @@ function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => setTheme("light")}>
                   <Sun className="mr-2 size-4" />
-                  Aydınlık Tema
+                  Light Theme
                   {theme === "light" && <span className="ml-auto text-xs text-muted-foreground">✓</span>}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setTheme("dark")}>
                   <Moon className="mr-2 size-4" />
-                  Karanlık Tema
+                  Dark Theme
                   {theme === "dark" && <span className="ml-auto text-xs text-muted-foreground">✓</span>}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setTheme("system")}>
                   <Monitor className="mr-2 size-4" />
-                  Sistem Teması
+                  System Theme
                   {theme === "system" && <span className="ml-auto text-xs text-muted-foreground">✓</span>}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => setLogoutOpen(true)} className="text-destructive focus:text-destructive focus:bg-destructive/10">
                   <LogOut className="mr-2 size-4" />
-                  Çıkış Yap
+                  Sign Out
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -266,14 +266,14 @@ function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: {
       <AlertDialog open={logoutOpen} onOpenChange={setLogoutOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Çıkış yapmak istiyor musunuz?</AlertDialogTitle>
+            <AlertDialogTitle>Do you want to sign out?</AlertDialogTitle>
             <AlertDialogDescription>
-              Oturumunuz sonlandırılacak. Tekrar giriş yapmanız gerekecek.
+              Your session will be terminated. You will need to sign in again.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>İptal</AlertDialogCancel>
-            <AlertDialogAction onClick={logout}>Çıkış Yap</AlertDialogAction>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={logout}>Sign Out</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

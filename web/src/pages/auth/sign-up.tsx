@@ -28,11 +28,11 @@ export default function SignUp() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (formData.password !== formData.confirmPassword) {
-      toast.error("Şifreler eşleşmiyor")
+      toast.error("Passwords do not match")
       return
     }
     if (formData.password.length < 6) {
-      toast.error("Şifre en az 6 karakter olmalıdır")
+      toast.error("Password must be at least 6 characters")
       return
     }
     setLoading(true)
@@ -40,8 +40,8 @@ export default function SignUp() {
       await register(formData.name, formData.email, formData.password)
       setRegistered(true)
     } catch (error) {
-      const message = error instanceof ApiClientError ? error.data.message : "Kayıt yapılamadı"
-      toast.error(message || "Kayıt yapılamadı")
+      const message = error instanceof ApiClientError ? error.data.message : "Registration failed"
+      toast.error(message || "Registration failed")
     } finally {
       setLoading(false)
     }
@@ -51,8 +51,8 @@ export default function SignUp() {
     return (
       <div className="min-h-screen grid lg:grid-cols-2">
         <AuthLeftPanel
-          heading={<>İşletmeniz<br />oluşturuldu!</>}
-          description="E-posta adresinizi doğruladıktan sonra platformun tüm özelliklerine erişebilirsiniz."
+          heading={<>Your business<br />has been created!</>}
+          description="You can access all platform features after verifying your email address."
         />
         <div className="flex items-center justify-center p-8">
           <div className="w-full max-w-md space-y-8 text-center">
@@ -69,14 +69,14 @@ export default function SignUp() {
                 </svg>
               </div>
               <div className="space-y-2">
-                <h2 className="text-2xl font-semibold tracking-tight">Hesabınız oluşturuldu</h2>
+                <h2 className="text-2xl font-semibold tracking-tight">Account created</h2>
                 <p className="text-sm text-muted-foreground max-w-sm">
-                  Hesabınız başarıyla oluşturuldu. Giriş yaptığınızda e-posta doğrulaması yapmanız istenecek.
+                  Your account has been created successfully. You will be asked to verify your email when you sign in.
                 </p>
               </div>
             </div>
             <Link to="/sign-in">
-              <Button className="w-full h-11">Giriş Yap</Button>
+              <Button className="w-full h-11">Sign In</Button>
             </Link>
           </div>
         </div>
@@ -87,29 +87,29 @@ export default function SignUp() {
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
       <AuthLeftPanel
-        heading={<>İşletmenizi<br />platforma taşıyın</>}
-        description="Müşterilerinizden geri bildirim toplayın, analiz edin ve işletmenizi geliştirin."
+        heading={<>Bring your business<br />to the platform</>}
+        description="Collect feedback from customers, analyze it, and grow your business."
       />
       <div className="flex items-center justify-center p-8">
         <div className="w-full max-w-md space-y-8">
           <div className="lg:hidden text-center">
             <h1 className="text-2xl font-semibold tracking-tight">Werna</h1>
-            <p className="text-sm text-muted-foreground mt-1">İşletme hesabı oluşturun</p>
+            <p className="text-sm text-muted-foreground mt-1">Create a business account</p>
           </div>
 
           <div className="space-y-1">
-            <h2 className="text-2xl font-semibold tracking-tight">Kayıt olun</h2>
-            <p className="text-sm text-muted-foreground">İşletme bilgilerinizi girerek başlayın</p>
+            <h2 className="text-2xl font-semibold tracking-tight">Sign up</h2>
+            <p className="text-sm text-muted-foreground">Get started by entering your business information</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">İşletme Adı</Label>
+              <Label htmlFor="name">Business Name</Label>
               <Input
                 id="name"
                 name="name"
                 type="text"
-                placeholder="Kafe Örnek"
+                placeholder="Example Cafe"
                 className="h-11"
                 value={formData.name}
                 onChange={handleChange}
@@ -118,12 +118,12 @@ export default function SignUp() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email">E-posta</Label>
+              <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 name="email"
                 type="email"
-                placeholder="ornek@isletme.com"
+                placeholder="example@business.com"
                 className="h-11"
                 value={formData.email}
                 onChange={handleChange}
@@ -132,11 +132,11 @@ export default function SignUp() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Şifre</Label>
+              <Label htmlFor="password">Password</Label>
               <PasswordInput
                 id="password"
                 name="password"
-                placeholder="En az 6 karakter"
+                placeholder="At least 6 characters"
                 className="h-11"
                 value={formData.password}
                 onChange={handleChange}
@@ -145,11 +145,11 @@ export default function SignUp() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Şifre Tekrar</Label>
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
               <PasswordInput
                 id="confirmPassword"
                 name="confirmPassword"
-                placeholder="Şifrenizi tekrar girin"
+                placeholder="Re-enter your password"
                 className="h-11"
                 value={formData.confirmPassword}
                 onChange={handleChange}
@@ -158,14 +158,14 @@ export default function SignUp() {
             </div>
 
             <Button type="submit" className="w-full h-11" disabled={loading}>
-              {loading ? "Hesap oluşturuluyor..." : "Hesap Oluştur"}
+              {loading ? "Creating account..." : "Create Account"}
             </Button>
           </form>
 
           <p className="text-center text-sm text-muted-foreground">
-            Zaten hesabınız var mı?{" "}
+            Already have an account?{" "}
             <Link to="/sign-in" className="text-primary font-medium hover:underline">
-              Giriş yapın
+              Sign in
             </Link>
           </p>
         </div>

@@ -34,19 +34,19 @@ export default function SessionExpiredDialog() {
     <AlertDialog open={sessionExpired}>
       <AlertDialogContent size="sm">
         <AlertDialogHeader>
-          <AlertDialogTitle>Oturum Süreniz Doldu</AlertDialogTitle>
+          <AlertDialogTitle>Session Expired</AlertDialogTitle>
           <AlertDialogDescription>
-            Güvenliğiniz için oturumunuz sona erdi. Devam etmek ister misiniz?
+            Your session has ended for security reasons. Would you like to continue?
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={handleLogout} disabled={loading !== null}>
             {loading === "logout" ? <Spinner className="mr-2" /> : null}
-            Çıkış Yap
+            Sign Out
           </AlertDialogCancel>
           <AlertDialogAction onClick={handleExtend} disabled={loading !== null}>
             {loading === "extend" ? <Spinner className="mr-2" /> : null}
-            Devam Et
+            Continue
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

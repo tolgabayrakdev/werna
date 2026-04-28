@@ -12,7 +12,7 @@ export class AuthController {
       res.status(201).json({
         success: true,
         data: result,
-        message: 'Kayıt başarılı. Lütfen e-postanızı doğrulayın.',
+        message: 'Registration successful. Please verify your email.',
       });
     } catch (err) {
       next(err);
@@ -26,7 +26,7 @@ export class AuthController {
       res.status(200).json({
         success: true,
         data: result,
-        message: 'E-posta başarıyla doğrulandı. Artık giriş yapabilirsiniz.',
+        message: 'Email verified successfully. You can now log in.',
       });
     } catch (err) {
       next(err);
@@ -59,7 +59,7 @@ export class AuthController {
       const result = await this.authService.refreshToken(token);
       res.cookie('accessToken', result.tokens.accessToken, getAccessTokenCookieOptions());
       res.cookie('refreshToken', result.tokens.refreshToken, getRefreshTokenCookieOptions());
-      res.status(200).json({ success: true, data: { message: "Token'lar yenilendi" } });
+      res.status(200).json({ success: true, data: { message: 'Tokens refreshed' } });
     } catch (err) {
       res.clearCookie('accessToken', getAccessTokenCookieOptions());
       res.clearCookie('refreshToken', getRefreshTokenCookieOptions());
@@ -72,7 +72,7 @@ export class AuthController {
       await this.authService.forgotPassword(req.body.email);
       res.status(200).json({
         success: true,
-        data: { message: 'Bu e-posta adresi kayıtlıysa sıfırlama bağlantısı gönderildi' },
+        data: { message: 'If this email is registered, a reset link has been sent' },
       });
     } catch (err) {
       next(err);
@@ -83,7 +83,7 @@ export class AuthController {
     try {
       const { token, newPassword } = req.body;
       await this.authService.resetPassword(token, newPassword);
-      res.status(200).json({ success: true, data: { message: 'Şifre başarıyla sıfırlandı' } });
+      res.status(200).json({ success: true, data: { message: 'Password reset successfully' } });
     } catch (err) {
       next(err);
     }
@@ -95,7 +95,7 @@ export class AuthController {
       await this.authService.logout(req.user?.id, refreshToken);
       res.clearCookie('accessToken', getAccessTokenCookieOptions());
       res.clearCookie('refreshToken', getRefreshTokenCookieOptions());
-      res.status(200).json({ success: true, data: { message: 'Başarıyla çıkış yapıldı' } });
+      res.status(200).json({ success: true, data: { message: 'Logged out successfully' } });
     } catch (err) {
       next(err);
     }

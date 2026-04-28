@@ -83,26 +83,26 @@ interface AnalyticsData {
 }
 
 const TYPE_CONFIG = {
-  complaint: { label: "Şikayet", icon: AlertCircle, color: "text-red-500", bg: "bg-red-500/10", fill: "#ef4444" },
-  suggestion: { label: "Öneri", icon: Lightbulb, color: "text-amber-500", bg: "bg-amber-500/10", fill: "#f59e0b" },
-  request: { label: "İstek", icon: MessageSquare, color: "text-blue-500", bg: "bg-blue-500/10", fill: "#3b82f6" },
-  compliment: { label: "Tebrik", icon: ThumbsUp, color: "text-emerald-500", bg: "bg-emerald-500/10", fill: "#10b981" },
+  complaint: { label: "Complaint", icon: AlertCircle, color: "text-red-500", bg: "bg-red-500/10", fill: "#ef4444" },
+  suggestion: { label: "Suggestion", icon: Lightbulb, color: "text-amber-500", bg: "bg-amber-500/10", fill: "#f59e0b" },
+  request: { label: "Request", icon: MessageSquare, color: "text-blue-500", bg: "bg-blue-500/10", fill: "#3b82f6" },
+  compliment: { label: "Compliment", icon: ThumbsUp, color: "text-emerald-500", bg: "bg-emerald-500/10", fill: "#10b981" },
 } as const
 
 const TYPE_FILTERS = [
-  { value: "all", label: "Tüm Türler" },
-  { value: "complaint", label: "Şikayet" },
-  { value: "suggestion", label: "Öneri" },
-  { value: "request", label: "İstek" },
-  { value: "compliment", label: "Tebrik" },
+  { value: "all", label: "All Types" },
+  { value: "complaint", label: "Complaint" },
+  { value: "suggestion", label: "Suggestion" },
+  { value: "request", label: "Request" },
+  { value: "compliment", label: "Compliment" },
 ]
 
 const DATE_FILTERS = [
-  { value: "all", label: "Tüm Zamanlar" },
-  { value: "today", label: "Bugün" },
-  { value: "week", label: "Bu Hafta" },
-  { value: "month", label: "Bu Ay" },
-  { value: "year", label: "Bu Yıl" },
+  { value: "all", label: "All Time" },
+  { value: "today", label: "Today" },
+  { value: "week", label: "This Week" },
+  { value: "month", label: "This Month" },
+  { value: "year", label: "This Year" },
 ]
 
 function sumCounts(rows: TypeCount[]) {
@@ -116,8 +116,8 @@ function getCount(rows: TypeCount[], type: string) {
 function formatDateTime(dateStr: string) {
   const d = new Date(dateStr)
   return {
-    date: d.toLocaleDateString("tr-TR", { day: "numeric", month: "short", year: "numeric" }),
-    time: d.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" }),
+    date: d.toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" }),
+    time: d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }),
   }
 }
 
@@ -145,7 +145,7 @@ export default function FeedbacksPage() {
         setPagination(res.pagination)
         setExpandedId(null)
       })
-      .catch(() => toast.error("Geri bildirimler yüklenemedi"))
+      .catch(() => toast.error("Could not load feedback"))
       .finally(() => setLoading(false))
   }, [])
 
@@ -239,21 +239,21 @@ export default function FeedbacksPage() {
       .sort(([a], [b]) => a.localeCompare(b))
       .slice(-6)
       .map(([month, total]) => ({
-        name: new Date(month + "-01").toLocaleDateString("tr-TR", { month: "short" }),
+        name: new Date(month + "-01").toLocaleDateString("en-US", { month: "short" }),
         total,
       }))
   })()
 
   const stats = [
-    { label: "Toplam", value: totalAll, icon: BarChart3 },
+    { label: "Total", value: totalAll, icon: BarChart3 },
     {
-      label: "Bu Hafta",
+      label: "This Week",
       value: totalWeek,
       icon: TrendingUp,
       trend: (totalWeek >= totalMonth - totalWeek ? "up" : "down") as "up" | "down",
     },
-    { label: "Bu Ay", value: totalMonth, icon: Clock },
-    { label: "Tebrik", value: analytics ? getCount(analytics.allTime, "compliment") : 0, icon: ThumbsUp },
+    { label: "This Month", value: totalMonth, icon: Clock },
+    { label: "Compliments", value: analytics ? getCount(analytics.allTime, "compliment") : 0, icon: ThumbsUp },
   ]
 
   const clientFilterActive = search.trim() !== "" || dateRange !== "all"
@@ -263,14 +263,14 @@ export default function FeedbacksPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Geri Bildirimler</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Feedback</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Müşterilerinizden gelen doğrulanmış geri bildirimler
+            Verified feedback from your customers
           </p>
         </div>
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/60 rounded-lg px-3 py-1.5">
           <BarChart3 className="size-3.5" />
-          Toplam {pagination.total.toLocaleString("tr-TR")} kayıt
+          Total {pagination.total.toLocaleString()} records
         </div>
       </div>
 
@@ -289,7 +289,7 @@ export default function FeedbacksPage() {
                     {loading && analytics === null ? (
                       <Skeleton className="h-7 w-12 inline-block" />
                     ) : (
-                      value.toLocaleString("tr-TR")
+                      value.toLocaleString("en-US")
                     )}
                   </p>
                   {trend &&
@@ -309,15 +309,15 @@ export default function FeedbacksPage() {
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardContent className="p-5">
-            <h3 className="text-sm font-semibold mb-1">Tür Dağılımı</h3>
-            <p className="text-xs text-muted-foreground mb-4">Tüm zamanların geri bildirim türleri</p>
+            <h3 className="text-sm font-semibold mb-1">Type Distribution</h3>
+            <p className="text-xs text-muted-foreground mb-4">All-time feedback types</p>
             {loading && analytics === null ? (
               <div className="h-56 flex items-center justify-center">
                 <Skeleton className="h-40 w-40 rounded-full" />
               </div>
             ) : pieData.length === 0 ? (
               <div className="h-56 flex items-center justify-center text-muted-foreground text-sm">
-                Henüz veri yok
+                No data yet
               </div>
             ) : (
               <div className="h-56">
@@ -337,7 +337,7 @@ export default function FeedbacksPage() {
                         <Cell key={`cell-${index}`} fill={entry.fill} />
                       ))}
                     </Pie>
-                    <ReTooltip formatter={(value, name) => [`${value} adet`, name]} />
+                    <ReTooltip formatter={(value, name) => [`${value} items`, name]} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
@@ -347,15 +347,15 @@ export default function FeedbacksPage() {
 
         <Card>
           <CardContent className="p-5">
-            <h3 className="text-sm font-semibold mb-1">Aylık Trend</h3>
-            <p className="text-xs text-muted-foreground mb-4">Son 6 aylık geri bildirim sayısı</p>
+            <h3 className="text-sm font-semibold mb-1">Monthly Trend</h3>
+            <p className="text-xs text-muted-foreground mb-4">Feedback count for the last 6 months</p>
             {loading && analytics === null ? (
               <div className="h-56 flex items-center justify-center">
                 <Skeleton className="h-48 w-full" />
               </div>
             ) : monthlyData.length === 0 ? (
               <div className="h-56 flex items-center justify-center text-muted-foreground text-sm">
-                Henüz veri yok
+                No data yet
               </div>
             ) : (
               <div className="h-56">
@@ -390,7 +390,7 @@ export default function FeedbacksPage() {
                       }}
                       itemStyle={{ color: "hsl(var(--muted-foreground))" }}
                       labelStyle={{ color: "hsl(var(--foreground))", fontWeight: 500 }}
-                      formatter={(value) => [`${value} geri bildirim`, "Toplam"]}
+                      formatter={(value) => [`${value} feedback`, "Total"]}
                     />
                     <Bar dataKey="total" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
                   </BarChart>
@@ -407,7 +407,7 @@ export default function FeedbacksPage() {
         <div className="relative flex items-center border-b">
           <Search className="absolute left-4 size-4 text-muted-foreground pointer-events-none shrink-0" />
           <Input
-            placeholder="E-posta, mesaj veya link adında ara..."
+            placeholder="Search by email, message, or link name..."
             className="pl-11 h-11 bg-transparent border-0 shadow-none rounded-none focus-visible:ring-0 text-sm"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -468,7 +468,7 @@ export default function FeedbacksPage() {
             ) : (
               <SortAsc className="size-3.5" />
             )}
-            {sortDir === "desc" ? "En Yeni" : "En Eski"}
+            {sortDir === "desc" ? "Newest" : "Oldest"}
           </Button>
 
           {hasActiveFilters && (
@@ -479,14 +479,14 @@ export default function FeedbacksPage() {
               onClick={clearFilters}
             >
               <X className="size-3" />
-              Temizle
+              Clear
             </Button>
           )}
 
           <div className="ml-auto flex items-center gap-3">
             {clientFilterActive && (
               <span className="text-xs text-muted-foreground tabular-nums">
-                {displayed.length.toLocaleString("tr-TR")} / {feedbacks.length.toLocaleString("tr-TR")} sonuç
+                {displayed.length.toLocaleString()} / {feedbacks.length.toLocaleString()} results
               </span>
             )}
             <Select value={String(limit)} onValueChange={handleLimitChange}>
@@ -494,9 +494,9 @@ export default function FeedbacksPage() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent align="end">
-                <SelectItem value="25">25 / sayfa</SelectItem>
-                <SelectItem value="50">50 / sayfa</SelectItem>
-                <SelectItem value="100">100 / sayfa</SelectItem>
+                <SelectItem value="25">25 / page</SelectItem>
+                <SelectItem value="50">50 / page</SelectItem>
+                <SelectItem value="100">100 / page</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -528,11 +528,11 @@ export default function FeedbacksPage() {
           <CardContent className="flex flex-col items-center justify-center h-52 gap-3 text-muted-foreground">
             <Inbox className="size-10 opacity-40" />
             <div className="text-center">
-              <p className="text-sm font-medium">Geri bildirim bulunamadı</p>
+              <p className="text-sm font-medium">No feedback found</p>
               <p className="text-xs mt-1">
                 {search || dateRange !== "all" || type !== "all"
-                  ? "Bu filtrelerle eşleşen kayıt yok — filtreleri değiştirmeyi deneyin"
-                  : "Henüz geri bildirim alınmamış"}
+                  ? "No records match these filters — try changing the filters"
+                  : "No feedback received yet"}
               </p>
             </div>
           </CardContent>
@@ -544,23 +544,23 @@ export default function FeedbacksPage() {
               <TableHeader>
                 <TableRow className="hover:bg-transparent bg-muted/30 border-b">
                   <TableHead className="w-[110px] pl-4 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                    Tür
+                    Type
                   </TableHead>
                   <TableHead className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                    Mesaj
+                    Message
                   </TableHead>
                   <TableHead className="w-[150px] text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     Link
                   </TableHead>
                   <TableHead className="w-[190px] text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                    E-posta
+                    Email
                   </TableHead>
                   <TableHead className="w-[140px] pr-4 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     <button
                       className="flex items-center gap-1 hover:text-foreground transition-colors"
                       onClick={() => setSortDir((d) => (d === "desc" ? "asc" : "desc"))}
                     >
-                      Tarih
+                      Date
                       {sortDir === "desc" ? (
                         <ChevronDown className="size-3" />
                       ) : (
@@ -658,8 +658,8 @@ export default function FeedbacksPage() {
       {pagination.totalPages > 1 && !clientFilterActive && (
         <div className="flex items-center justify-between gap-3 pt-1">
           <p className="text-xs text-muted-foreground">
-            Sayfa {page} / {pagination.totalPages} &middot;{" "}
-            {pagination.total.toLocaleString("tr-TR")} kayıt
+            Page {page} / {pagination.totalPages} &middot;{" "}
+            {pagination.total.toLocaleString()} records
           </p>
           <div className="flex items-center gap-1">
             <Button

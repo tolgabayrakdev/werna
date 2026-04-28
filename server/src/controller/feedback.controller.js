@@ -35,7 +35,7 @@ export class FeedbackController {
   deleteLink = async (req, res, next) => {
     try {
       await this.feedbackService.deleteLink(req.user.id, req.params.id);
-      res.status(200).json({ success: true, data: { message: 'Bağlantı silindi' } });
+      res.status(200).json({ success: true, data: { message: 'Link deleted' } });
     } catch (err) {
       next(err);
     }

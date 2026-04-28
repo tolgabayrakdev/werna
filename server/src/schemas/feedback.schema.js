@@ -1,35 +1,35 @@
 import Joi from 'joi';
 
-const trMessages = {
-  'string.base': '{{#label}} metin olmalıdır',
-  'string.email': 'Geçerli bir e-posta adresi giriniz',
-  'string.min': '{{#label}} en az {{#limit}} karakter olmalıdır',
-  'string.max': '{{#label}} en fazla {{#limit}} karakter olmalıdır',
-  'string.length': '{{#label}} tam {{#limit}} karakter olmalıdır',
-  'string.pattern.base': '{{#label}} yalnızca rakamlardan oluşmalıdır',
-  'any.only': '{{#label}} geçersiz bir değer içeriyor',
-  'any.required': '{{#label}} zorunludur',
+const enMessages = {
+  'string.base': '{{#label}} must be a string',
+  'string.email': 'Please enter a valid email address',
+  'string.min': '{{#label}} must be at least {{#limit}} characters',
+  'string.max': '{{#label}} must be at most {{#limit}} characters',
+  'string.length': '{{#label}} must be exactly {{#limit}} characters',
+  'string.pattern.base': '{{#label}} must contain only digits',
+  'any.only': '{{#label}} contains an invalid value',
+  'any.required': '{{#label}} is required',
 };
 
 export const createLinkSchema = Joi.object({
-  name: Joi.string().min(2).max(255).required().label('Bağlantı adı'),
-}).messages(trMessages);
+  name: Joi.string().min(2).max(255).required().label('Link name'),
+}).messages(enMessages);
 
 export const submitFeedbackSchema = Joi.object({
-  slug: Joi.string().required().label('Bağlantı'),
-  customerEmail: Joi.string().email().required().label('E-posta'),
+  slug: Joi.string().required().label('Link'),
+  customerEmail: Joi.string().email().required().label('Email'),
   type: Joi.string()
     .valid('complaint', 'suggestion', 'request', 'compliment')
     .required()
-    .label('Geri bildirim türü'),
-  message: Joi.string().min(10).max(2000).required().label('Mesaj'),
-}).messages(trMessages);
+    .label('Feedback type'),
+  message: Joi.string().min(10).max(2000).required().label('Message'),
+}).messages(enMessages);
 
 export const verifyFeedbackSchema = Joi.object({
-  feedbackId: Joi.string().uuid().required().label('Geri bildirim ID'),
+  feedbackId: Joi.string().uuid().required().label('Feedback ID'),
   code: Joi.string()
     .length(6)
     .pattern(/^\d{6}$/)
     .required()
-    .label('Doğrulama kodu'),
-}).messages(trMessages);
+    .label('Verification code'),
+}).messages(enMessages);

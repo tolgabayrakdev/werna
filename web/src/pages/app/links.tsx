@@ -67,7 +67,7 @@ export default function LinksPage() {
     apiClient
       .get<GetLinksRes>("/api/feedback/links")
       .then((res) => setLinks(res.data))
-      .catch(() => toast.error("Bağlantılar yüklenemedi"))
+      .catch(() => toast.error("Could not load links"))
       .finally(() => setLoading(false))
   }, [])
 
@@ -82,10 +82,10 @@ export default function LinksPage() {
       setLinks((prev) => [res.data, ...prev])
       setNewName("")
       setDialogOpen(false)
-      toast.success("Bağlantı oluşturuldu")
+      toast.success("Link created")
     } catch (err) {
       toast.error(
-        err instanceof ApiClientError ? (err.data.message ?? "Oluşturulamadı") : "Bir hata oluştu"
+        err instanceof ApiClientError ? (err.data.message ?? "Could not create") : "An error occurred"
       )
     } finally {
       setCreating(false)
@@ -93,21 +93,21 @@ export default function LinksPage() {
   }
 
   const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`"${name}" bağlantısını silmek istediğinizden emin misiniz?`)) return
+    if (!confirm(`Are you sure you want to delete "${name}"?`)) return
     try {
       await apiClient.delete(`/api/feedback/links/${id}`)
       setLinks((prev) => prev.filter((l) => l.id !== id))
       if (qrTarget?.id === id) setQrTarget(null)
-      toast.success("Bağlantı silindi")
+      toast.success("Link deleted")
     } catch {
-      toast.error("Bağlantı silinemedi")
+      toast.error("Could not delete link")
     }
   }
 
   const copyLink = (slug: string) => {
     navigator.clipboard.writeText(linkUrl(slug))
     setCopiedSlug(slug)
-    toast.success("Link kopyalandı")
+    toast.success("Link copied")
     setTimeout(() => setCopiedSlug(null), 2000)
   }
 
@@ -139,14 +139,14 @@ export default function LinksPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Bağlantılar</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Links</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Müşterilerinize göndermek için geri bildirim linkleri oluşturun
+            Create feedback links to send to your customers
           </p>
         </div>
         <Button onClick={() => setDialogOpen(true)} className="gap-2 shrink-0">
           <Plus className="size-4" />
-          Yeni Bağlantı
+          New Link
         </Button>
       </div>
 
@@ -158,7 +158,7 @@ export default function LinksPage() {
               <Link2 className="size-4 text-primary" />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Toplam Link</p>
+              <p className="text-xs text-muted-foreground">Total Links</p>
               <p className="text-xl font-bold">
                 {loading ? <Skeleton className="h-7 w-10 inline-block" /> : links.length}
               </p>
@@ -171,7 +171,7 @@ export default function LinksPage() {
               <CheckCircle2 className="size-4 text-emerald-500" />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Aktif</p>
+              <p className="text-xs text-muted-foreground">Active</p>
               <p className="text-xl font-bold">
                 {loading ? <Skeleton className="h-7 w-10 inline-block" /> : activeCount}
               </p>
@@ -184,7 +184,7 @@ export default function LinksPage() {
               <QrCode className="size-4 text-blue-500" />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">QR Oluşturulabilir</p>
+              <p className="text-xs text-muted-foreground">QR Generatable</p>
               <p className="text-xl font-bold">
                 {loading ? <Skeleton className="h-7 w-10 inline-block" /> : links.length}
               </p>
@@ -203,36 +203,35 @@ export default function LinksPage() {
       >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-base">Yeni Bağlantı Oluştur</DialogTitle>
+            <DialogTitle className="text-base">Create New Link</DialogTitle>
             <DialogDescription>
-              Müşterilerinize göndermek için yeni bir geri bildirim bağlantısı oluşturun. Her
-              bağlantı için QR kod oluşturabilirsiniz.
+              Create a new feedback link to send to your customers. You can generate a QR code for each link.
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleCreate} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="linkName">Bağlantı Adı</Label>
+              <Label htmlFor="linkName">Link Name</Label>
               <Input
                 id="linkName"
-                placeholder="ör: Masa QR, Kasa Yanı, WhatsApp"
+                placeholder="e.g. Table QR, Counter, WhatsApp"
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
                 required
                 autoFocus
               />
               <p className="text-xs text-muted-foreground">
-                Bu ad yalnızca size gösterilir, müşteriler görmez.
+                This name is only visible to you, customers will not see it.
               </p>
             </div>
             <DialogFooter>
               <DialogClose asChild>
                 <Button type="button" variant="outline">
-                  İptal
+                  Cancel
                 </Button>
               </DialogClose>
               <Button type="submit" disabled={creating || !newName.trim()} className="gap-2">
                 {creating ? <Spinner /> : <Plus className="size-4" />}
-                Oluştur
+                Create
               </Button>
             </DialogFooter>
           </form>
@@ -260,14 +259,14 @@ export default function LinksPage() {
               <QrCode className="size-7 opacity-50" />
             </div>
             <div className="text-center">
-              <p className="text-sm font-medium text-foreground">Henüz bağlantı yok</p>
+              <p className="text-sm font-medium text-foreground">No links yet</p>
               <p className="text-xs mt-1">
-                Müşterileriniz için ilk geri bildirim bağlantısını oluşturun
+                Create your first feedback link for your customers
               </p>
             </div>
             <Button size="sm" className="gap-2" onClick={() => setDialogOpen(true)}>
               <Plus className="size-3.5" />
-              İlk Bağlantıyı Oluştur
+              Create First Link
             </Button>
           </CardContent>
         </Card>
@@ -281,7 +280,7 @@ export default function LinksPage() {
                   <p className="font-semibold text-sm truncate">{link.name}</p>
                   {link.is_active && (
                     <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-600 shrink-0">
-                      Aktif
+                      Active
                     </span>
                   )}
                 </div>
@@ -304,7 +303,7 @@ export default function LinksPage() {
                   variant="ghost"
                   size="icon"
                   className="size-8 text-muted-foreground hover:text-foreground"
-                  title="Linki aç"
+                  title="Open link"
                   onClick={() => window.open(linkUrl(link.slug), "_blank")}
                 >
                   <ExternalLink className="size-3.5" />
@@ -313,7 +312,7 @@ export default function LinksPage() {
                   variant="ghost"
                   size="icon"
                   className="size-8 text-muted-foreground hover:text-foreground"
-                  title="Kopyala"
+                  title="Copy"
                   onClick={() => copyLink(link.slug)}
                 >
                   {copiedSlug === link.slug ? (
@@ -326,7 +325,7 @@ export default function LinksPage() {
                   variant="ghost"
                   size="icon"
                   className="size-8 text-muted-foreground hover:text-foreground"
-                  title="QR Kod"
+                  title="QR Code"
                   onClick={() => setQrTarget(link)}
                 >
                   <QrCode className="size-3.5" />
@@ -336,7 +335,7 @@ export default function LinksPage() {
                   variant="ghost"
                   size="icon"
                   className="size-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                  title="Sil"
+                  title="Delete"
                   onClick={() => handleDelete(link.id, link.name)}
                 >
                   <Trash2 className="size-3.5" />
@@ -395,7 +394,7 @@ export default function LinksPage() {
                 </div>
                 <Button className="w-full gap-2" onClick={downloadQR}>
                   <Download className="size-4" />
-                  QR İndir (PNG)
+                  QR Download (PNG)
                 </Button>
               </div>
             </CardContent>

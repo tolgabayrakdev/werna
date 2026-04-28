@@ -26,7 +26,7 @@ export class AccountController {
   updatePassword = async (req, res, next) => {
     try {
       await this.accountService.updatePassword(req.user.id, req.body);
-      res.status(200).json({ success: true, data: { message: 'Şifre güncellendi' } });
+      res.status(200).json({ success: true, data: { message: 'Password updated' } });
     } catch (err) {
       next(err);
     }
@@ -35,7 +35,7 @@ export class AccountController {
   deleteAccount = async (req, res, next) => {
     try {
       await this.accountService.deleteAccount(req.user.id);
-      res.status(200).json({ success: true, data: { message: 'Hesap silindi' } });
+      res.status(200).json({ success: true, data: { message: 'Account deleted' } });
     } catch (err) {
       next(err);
     }
@@ -53,7 +53,7 @@ export class AccountController {
   upsertBusinessProfile = async (req, res, next) => {
     try {
       const data = await this.accountService.upsertBusinessProfile(req.user.id, req.body);
-      res.status(200).json({ success: true, data, message: 'İşletme profili güncellendi' });
+      res.status(200).json({ success: true, data, message: 'Business profile updated' });
     } catch (err) {
       next(err);
     }
@@ -62,7 +62,7 @@ export class AccountController {
   completeOnboarding = async (req, res, next) => {
     try {
       const data = await this.accountService.completeOnboarding(req.user.id);
-      res.status(200).json({ success: true, data, message: 'Onboarding tamamlandı' });
+      res.status(200).json({ success: true, data, message: 'Onboarding completed' });
     } catch (err) {
       next(err);
     }

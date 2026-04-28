@@ -21,12 +21,12 @@ export default function ResetPassword() {
     return (
       <div className="min-h-screen flex items-center justify-center p-8">
         <div className="text-center space-y-4 max-w-sm">
-          <h2 className="text-xl font-semibold">Geçersiz Bağlantı</h2>
+          <h2 className="text-xl font-semibold">Invalid Link</h2>
           <p className="text-sm text-muted-foreground">
-            Bu şifre sıfırlama bağlantısı geçersiz. Lütfen yeni bir bağlantı isteyin.
+            This password reset link is invalid. Please request a new one.
           </p>
           <Link to="/forgot-password" className="text-sm text-primary hover:underline">
-            Yeni bağlantı iste
+            Request new link
           </Link>
         </div>
       </div>
@@ -36,17 +36,17 @@ export default function ResetPassword() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (newPassword !== confirmPassword) {
-      toast.error("Şifreler eşleşmiyor")
+      toast.error("Passwords do not match")
       return
     }
     setLoading(true)
     try {
       await apiClient.post("/api/auth/reset-password", { token, newPassword })
-      toast.success("Şifreniz güncellendi. Giriş yapabilirsiniz.")
+      toast.success("Your password has been updated. You can now sign in.")
       navigate("/sign-in", { replace: true })
     } catch (error) {
-      const message = error instanceof ApiClientError ? error.data.message : "Şifre sıfırlanamadı"
-      toast.error(message || "Şifre sıfırlanamadı")
+      const message = error instanceof ApiClientError ? error.data.message : "Password could not be reset"
+      toast.error(message || "Password could not be reset")
     } finally {
       setLoading(false)
     }
@@ -55,8 +55,8 @@ export default function ResetPassword() {
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
       <AuthLeftPanel
-        heading={<>Yeni şifrenizi<br />belirleyin</>}
-        description="Hesabınız için güçlü ve hatırlanması kolay bir şifre oluşturun."
+        heading={<>Set your new<br />password</>}
+        description="Create a strong, memorable password for your account."
       />
 
       <div className="flex items-center justify-center p-8">
@@ -66,22 +66,22 @@ export default function ResetPassword() {
               <img src={wernaLogo} alt="Werna" className="h-8 w-auto" />
               <span className="text-2xl font-semibold tracking-tight">Werna</span>
             </div>
-            <p className="text-sm text-muted-foreground mt-1">Şifre sıfırlama</p>
+            <p className="text-sm text-muted-foreground mt-1">Password reset</p>
           </div>
 
           <div className="space-y-1">
-            <h2 className="text-2xl font-semibold tracking-tight">Yeni Şifre</h2>
+            <h2 className="text-2xl font-semibold tracking-tight">New Password</h2>
             <p className="text-sm text-muted-foreground">
-              Hesabınız için yeni bir şifre belirleyin
+              Set a new password for your account
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="newPassword">Yeni Şifre</Label>
+              <Label htmlFor="newPassword">New Password</Label>
               <PasswordInput
                 id="newPassword"
-                placeholder="En az 8 karakter"
+                placeholder="At least 8 characters"
                 className="h-11"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
@@ -90,10 +90,10 @@ export default function ResetPassword() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Yeni Şifre Tekrar</Label>
+              <Label htmlFor="confirmPassword">Confirm New Password</Label>
               <PasswordInput
                 id="confirmPassword"
-                placeholder="Şifrenizi tekrar girin"
+                placeholder="Re-enter your password"
                 className="h-11"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
@@ -106,7 +106,7 @@ export default function ResetPassword() {
               className="w-full h-11"
               disabled={loading || !newPassword || !confirmPassword}
             >
-              {loading ? "Kaydediliyor..." : "Şifremi Güncelle"}
+              {loading ? "Saving..." : "Update Password"}
             </Button>
           </form>
 
@@ -115,7 +115,7 @@ export default function ResetPassword() {
               <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M15 18l-6-6 6-6" />
               </svg>
-              Giriş sayfasına dön
+              Back to sign in
             </Link>
           </div>
         </div>

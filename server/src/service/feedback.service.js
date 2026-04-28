@@ -23,10 +23,10 @@ export class FeedbackService {
   async getLinkInfo(slug) {
     const link = await this.feedbackRepo.findLinkBySlug(slug);
     if (!link) {
-      throw new NotFoundError('Bağlantı bulunamadı');
+      throw new NotFoundError('Link not found');
     }
     if (!link.is_active) {
-      throw new ValidationError('Bu geri bildirim bağlantısı artık aktif değil');
+      throw new ValidationError('This feedback link is no longer active');
     }
     return { name: link.name, businessName: link.business_name, slug: link.slug };
   }
@@ -34,7 +34,7 @@ export class FeedbackService {
   async deleteLink(businessId, linkId) {
     const deleted = await this.feedbackRepo.deleteLinkById(linkId, businessId);
     if (!deleted) {
-      throw new NotFoundError('Bağlantı bulunamadı');
+      throw new NotFoundError('Link not found');
     }
     return deleted;
   }
@@ -42,10 +42,10 @@ export class FeedbackService {
   async submitFeedback({ slug, customerEmail, type, message }) {
     const link = await this.feedbackRepo.findLinkBySlug(slug);
     if (!link) {
-      throw new NotFoundError('Bağlantı bulunamadı');
+      throw new NotFoundError('Link not found');
     }
     if (!link.is_active) {
-      throw new ValidationError('Bu geri bildirim bağlantısı artık aktif değil');
+      throw new ValidationError('This feedback link is no longer active');
     }
 
     const feedback = await this.feedbackRepo.createFeedback({
@@ -66,28 +66,28 @@ export class FeedbackService {
 
     eventEmitter.emit('send-feedback-verification', { email: customerEmail, code });
 
-    return { feedbackId: feedback.id, message: 'Doğrulama kodu e-posta adresinize gönderildi' };
+    return { feedbackId: feedback.id, message: 'Verification code sent to your email' };
   }
 
   async verifyFeedback({ feedbackId, code }) {
     const feedback = await this.feedbackRepo.findFeedbackById(feedbackId);
     if (!feedback) {
-      throw new NotFoundError('Geri bildirim bulunamadı');
+      throw new NotFoundError('Feedback not found');
     }
 
     if (feedback.is_verified) {
-      throw new ValidationError('Bu geri bildirim zaten doğrulanmış');
+      throw new ValidationError('This feedback is already verified');
     }
 
     const storedCode = await this.feedbackRepo.findFeedbackVerificationCode(feedbackId, code);
     if (!storedCode) {
-      throw new ValidationError('Geçersiz veya süresi dolmuş doğrulama kodu');
+      throw new ValidationError('Invalid or expired verification code');
     }
 
     await this.feedbackRepo.deleteFeedbackVerificationCodes(feedbackId);
     const verified = await this.feedbackRepo.verifyFeedback(feedbackId);
 
-    return { message: 'Geri bildiriminiz başarıyla alındı, teşekkür ederiz!', feedback: verified };
+    return { message: 'Your feedback has been received successfully, thank you!', feedback: verified };
   }
 
   async getFeedbacks(businessId, { type, page = 1, limit = 20 }) {

@@ -5,7 +5,7 @@ export const authenticate = (req, res, next) => {
   const token = req.cookies?.accessToken;
 
   if (!token) {
-    return next(new UnauthorizedError("Erişim token'ı eksik"));
+    return next(new UnauthorizedError("Access token is missing"));
   }
 
   try {
@@ -13,6 +13,6 @@ export const authenticate = (req, res, next) => {
     req.user = decoded;
     next();
   } catch {
-    return next(new UnauthorizedError('Geçersiz veya süresi dolmuş erişim tokenı'));
+    return next(new UnauthorizedError('Invalid or expired access token'));
   }
 };

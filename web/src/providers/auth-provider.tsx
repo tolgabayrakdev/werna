@@ -46,9 +46,9 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     return (
       <div className="min-h-screen flex items-center justify-center p-8">
         <div className="text-center space-y-4 max-w-sm">
-          <h2 className="text-xl font-semibold">Çok Fazla İstek</h2>
+          <h2 className="text-xl font-semibold">Too Many Requests</h2>
           <p className="text-sm text-muted-foreground">
-            Sunucuya çok fazla istek gönderildi. Lütfen bir süre bekleyin ve tekrar deneyin.
+            Too many requests have been sent to the server. Please wait a moment and try again.
           </p>
           <button
             onClick={() => {
@@ -57,7 +57,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
             }}
             className="text-sm text-primary hover:underline"
           >
-            Tekrar Dene
+            Try Again
           </button>
         </div>
       </div>

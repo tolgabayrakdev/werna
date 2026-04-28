@@ -1,44 +1,44 @@
 import Joi from 'joi';
 
-const trMessages = {
-  'string.base': '{{#label}} metin olmalıdır',
-  'string.email': 'Geçerli bir e-posta adresi giriniz',
-  'string.min': '{{#label}} en az {{#limit}} karakter olmalıdır',
-  'string.max': '{{#label}} en fazla {{#limit}} karakter olmalıdır',
-  'string.length': '{{#label}} tam {{#limit}} karakter olmalıdır',
-  'string.pattern.base': '{{#label}} yalnızca rakamlardan oluşmalıdır',
-  'any.required': '{{#label}} zorunludur',
+const enMessages = {
+  'string.base': '{{#label}} must be a string',
+  'string.email': 'Please enter a valid email address',
+  'string.min': '{{#label}} must be at least {{#limit}} characters',
+  'string.max': '{{#label}} must be at most {{#limit}} characters',
+  'string.length': '{{#label}} must be exactly {{#limit}} characters',
+  'string.pattern.base': '{{#label}} must contain only digits',
+  'any.required': '{{#label}} is required',
 };
 
 export const registerSchema = Joi.object({
-  name: Joi.string().min(2).max(255).required().label('İşletme adı'),
-  email: Joi.string().email().required().label('E-posta'),
-  password: Joi.string().min(6).max(128).required().label('Şifre'),
-}).messages(trMessages);
+  name: Joi.string().min(2).max(255).required().label('Business name'),
+  email: Joi.string().email().required().label('Email'),
+  password: Joi.string().min(6).max(128).required().label('Password'),
+}).messages(enMessages);
 
 export const loginSchema = Joi.object({
-  email: Joi.string().email().required().label('E-posta'),
-  password: Joi.string().required().label('Şifre'),
-}).messages(trMessages);
+  email: Joi.string().email().required().label('Email'),
+  password: Joi.string().required().label('Password'),
+}).messages(enMessages);
 
 export const verifySchema = Joi.object({
-  email: Joi.string().email().required().label('E-posta'),
+  email: Joi.string().email().required().label('Email'),
   code: Joi.string()
     .length(6)
     .pattern(/^\d{6}$/)
     .required()
-    .label('Doğrulama kodu'),
-}).messages(trMessages);
+    .label('Verification code'),
+}).messages(enMessages);
 
 export const resendVerificationSchema = Joi.object({
-  email: Joi.string().email().required().label('E-posta'),
-}).messages(trMessages);
+  email: Joi.string().email().required().label('Email'),
+}).messages(enMessages);
 
 export const forgotPasswordSchema = Joi.object({
-  email: Joi.string().email().required().label('E-posta'),
-}).messages(trMessages);
+  email: Joi.string().email().required().label('Email'),
+}).messages(enMessages);
 
 export const resetPasswordSchema = Joi.object({
   token: Joi.string().length(64).required().label('Token'),
-  newPassword: Joi.string().min(8).max(128).required().label('Yeni şifre'),
-}).messages(trMessages);
+  newPassword: Joi.string().min(8).max(128).required().label('New password'),
+}).messages(enMessages);

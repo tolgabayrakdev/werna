@@ -25,7 +25,7 @@ export class AuthService {
   async register({ name, email, password }) {
     const existing = await this.authRepo.findBusinessByEmail(email);
     if (existing) {
-      throw new ConflictError('Bu e-posta adresi zaten kayıtlı');
+      throw new ConflictError('This email address is already registered');
     }
 
     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
@@ -37,16 +37,16 @@ export class AuthService {
   async verify({ email, code }) {
     const business = await this.authRepo.findBusinessByEmail(email);
     if (!business) {
-      throw new ValidationError('İşletme bulunamadı');
+      throw new ValidationError('Business not found');
     }
 
     if (business.is_verified) {
-      throw new ValidationError('Hesap zaten doğrulanmış');
+      throw new ValidationError('Account is already verified');
     }
 
     const storedCode = await this.authRepo.findVerificationCode(business.id, code);
     if (!storedCode) {
-      throw new ValidationError('Geçersiz veya süresi dolmuş doğrulama kodu');
+      throw new ValidationError('Invalid or expired verification code');
     }
 
     await this.authRepo.deleteVerificationCodesByBusinessId(business.id);
@@ -58,11 +58,11 @@ export class AuthService {
   async resendVerificationByEmail(email) {
     const business = await this.authRepo.findBusinessByEmail(email);
     if (!business) {
-      throw new ValidationError('Bu e-posta adresiyle kayıtlı hesap bulunamadı');
+      throw new ValidationError('No account found with this email address');
     }
 
     if (business.is_verified) {
-      throw new ValidationError('Hesap zaten doğrulanmış');
+      throw new ValidationError('Account is already verified');
     }
 
     await this.authRepo.deleteVerificationCodesByBusinessId(business.id);
@@ -72,18 +72,18 @@ export class AuthService {
     await this.authRepo.saveVerificationCode({ businessId: business.id, code, expiresAt });
     eventEmitter.emit('send-verification-code', { email: business.email, code });
 
-    return { businessId: business.id, message: 'Doğrulama kodu yeniden gönderildi' };
+    return { businessId: business.id, message: 'Verification code resent' };
   }
 
   async login({ email, password }) {
     const business = await this.authRepo.findBusinessByEmail(email);
     if (!business) {
-      throw new UnauthorizedError('Geçersiz e-posta veya şifre');
+      throw new UnauthorizedError('Invalid email or password');
     }
 
     const isPasswordValid = await bcrypt.compare(password, business.password);
     if (!isPasswordValid) {
-      throw new UnauthorizedError('Geçersiz e-posta veya şifre');
+      throw new UnauthorizedError('Invalid email or password');
     }
 
     if (!business.is_verified) {
@@ -92,11 +92,11 @@ export class AuthService {
       const expiresAt = new Date(Date.now() + VERIFICATION_CODE_EXPIRES);
       await this.authRepo.saveVerificationCode({ businessId: business.id, code, expiresAt });
       eventEmitter.emit('send-verification-code', { email: business.email, code });
-      throw new UnauthorizedError('Lütfen önce e-postanızı doğrulayın');
+      throw new UnauthorizedError('Please verify your email first');
     }
 
     if (!business.is_active) {
-      throw new UnauthorizedError('Hesap devre dışı bırakılmış');
+      throw new UnauthorizedError('Account has been disabled');
     }
 
     const tokenPayload = { id: business.id, email: business.email };
@@ -110,22 +110,22 @@ export class AuthService {
 
   async refreshToken(token) {
     if (!token) {
-      throw new UnauthorizedError("Yenileme token'ı eksik");
+      throw new UnauthorizedError("Refresh token is missing");
     }
 
     const storedToken = await this.authRepo.findRefreshToken(token);
     if (!storedToken) {
-      throw new UnauthorizedError("Geçersiz yenileme token'ı");
+      throw new UnauthorizedError("Invalid refresh token");
     }
 
     if (new Date(storedToken.expires_at) < new Date()) {
       await this.authRepo.deleteRefreshToken(token);
-      throw new UnauthorizedError("Yenileme token'ının süresi dolmuş");
+      throw new UnauthorizedError("Refresh token has expired");
     }
 
     if (!storedToken.is_active) {
       await this.authRepo.deleteRefreshTokensByBusinessId(storedToken.business_id);
-      throw new UnauthorizedError('Hesap devre dışı bırakılmış');
+      throw new UnauthorizedError('Account has been disabled');
     }
 
     let decoded;
@@ -133,7 +133,7 @@ export class AuthService {
       decoded = verifyRefreshToken(token);
     } catch {
       await this.authRepo.deleteRefreshToken(token);
-      throw new UnauthorizedError("Geçersiz yenileme token'ı");
+      throw new UnauthorizedError("Invalid refresh token");
     }
 
     await this.authRepo.deleteRefreshToken(token);
@@ -160,7 +160,7 @@ export class AuthService {
   async resetPassword(token, newPassword) {
     const resetToken = await this.authRepo.findPasswordResetToken(token);
     if (!resetToken) {
-      throw new ValidationError('Geçersiz veya süresi dolmuş sıfırlama bağlantısı');
+      throw new ValidationError('Invalid or expired reset link');
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);

@@ -16,7 +16,7 @@ export class AccountService {
   async getProfile(businessId) {
     const business = await this.businessRepo.findById(businessId);
     if (!business) {
-      throw new NotFoundError('İşletme bulunamadı');
+      throw new NotFoundError('Business not found');
     }
     const profile = await this.businessProfileRepo.findByBusinessId(businessId);
     const { password: _, ...safe } = business;
@@ -29,7 +29,7 @@ export class AccountService {
   async getBusinessProfile(businessId) {
     const business = await this.businessRepo.findById(businessId);
     if (!business) {
-      throw new NotFoundError('İşletme bulunamadı');
+      throw new NotFoundError('Business not found');
     }
     const profile = await this.businessProfileRepo.findByBusinessId(businessId);
     return {
@@ -56,7 +56,7 @@ export class AccountService {
   async upsertBusinessProfile(businessId, data) {
     const business = await this.businessRepo.findById(businessId);
     if (!business) {
-      throw new NotFoundError('İşletme bulunamadı');
+      throw new NotFoundError('Business not found');
     }
     const profile = await this.businessProfileRepo.createOrUpdate(businessId, {
       sector: data.sector,
@@ -88,7 +88,7 @@ export class AccountService {
   async completeOnboarding(businessId) {
     const business = await this.businessRepo.findById(businessId);
     if (!business) {
-      throw new NotFoundError('İşletme bulunamadı');
+      throw new NotFoundError('Business not found');
     }
     const profile = await this.businessProfileRepo.createOrUpdate(businessId, {
       onboarding_completed: true,
@@ -99,13 +99,13 @@ export class AccountService {
   async updateProfile(businessId, data) {
     const business = await this.businessRepo.findById(businessId);
     if (!business) {
-      throw new NotFoundError('İşletme bulunamadı');
+      throw new NotFoundError('Business not found');
     }
 
     if (data.email && data.email !== business.email) {
       const existing = await this.authRepo.findBusinessByEmail(data.email);
       if (existing) {
-        throw new ConflictError('Bu e-posta adresi zaten kullanılıyor');
+        throw new ConflictError('This email address is already in use');
       }
     }
 
@@ -119,12 +119,12 @@ export class AccountService {
   async updatePassword(businessId, { currentPassword, newPassword }) {
     const business = await this.businessRepo.findById(businessId);
     if (!business) {
-      throw new NotFoundError('İşletme bulunamadı');
+      throw new NotFoundError('Business not found');
     }
 
     const isValid = await bcrypt.compare(currentPassword, business.password);
     if (!isValid) {
-      throw new ValidationError('Mevcut şifre yanlış');
+      throw new ValidationError('Current password is incorrect');
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
@@ -134,7 +134,7 @@ export class AccountService {
   async deleteAccount(businessId) {
     const deleted = await this.businessRepo.deleteById(businessId);
     if (!deleted) {
-      throw new NotFoundError('İşletme bulunamadı');
+      throw new NotFoundError('Business not found');
     }
     return deleted;
   }

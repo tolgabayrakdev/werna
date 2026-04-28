@@ -38,8 +38,8 @@ export default function SignIn() {
       await apiClient.post("/api/auth/resend-verification", { email })
       setCountdown(RESEND_COOLDOWN)
     } catch (error) {
-      const message = error instanceof ApiClientError ? error.data.message : "Kod gönderilemedi"
-      toast.error(message || "Kod gönderilemedi")
+      const message = error instanceof ApiClientError ? error.data.message : "Could not send code"
+      toast.error(message || "Could not send code")
     } finally {
       setResending(false)
     }
@@ -55,19 +55,19 @@ export default function SignIn() {
       } else {
         localStorage.removeItem("remembered_email")
       }
-      toast.success("Giriş başarılı")
+      toast.success("Login successful")
       navigate("/", { replace: true })
     } catch (error) {
       if (
         error instanceof ApiClientError &&
-        error.data.message === "Lütfen önce e-postanızı doğrulayın"
+        error.data.message === "Please verify your email first"
       ) {
         setCountdown(RESEND_COOLDOWN)
         setStep("verify")
         return
       }
-      const message = error instanceof ApiClientError ? error.data.message : "Giriş yapılamadı"
-      toast.error(message || "Giriş yapılamadı")
+      const message = error instanceof ApiClientError ? error.data.message : "Login failed"
+      toast.error(message || "Login failed")
     } finally {
       setLoading(false)
     }
@@ -78,12 +78,12 @@ export default function SignIn() {
     setLoading(true)
     try {
       await apiClient.post("/api/auth/verify", { email, code })
-      toast.success("E-posta doğrulandı!")
+      toast.success("Email verified!")
       await login(email, password)
       navigate("/", { replace: true })
     } catch (error) {
-      const message = error instanceof ApiClientError ? error.data.message : "Doğrulama başarısız"
-      toast.error(message || "Doğrulama başarısız")
+      const message = error instanceof ApiClientError ? error.data.message : "Verification failed"
+      toast.error(message || "Verification failed")
     } finally {
       setLoading(false)
     }
@@ -93,8 +93,8 @@ export default function SignIn() {
     return (
       <div className="min-h-screen grid lg:grid-cols-2">
         <AuthLeftPanel
-          heading={<>Hesabınızı<br />doğrulayın</>}
-          description="E-posta adresinize gönderilen 6 haneli kodu girerek kimliğinizi doğrulayın."
+          heading={<>Verify your<br />account</>}
+          description="Verify your identity by entering the 6-digit code sent to your email address."
         />
 
         <div className="flex items-center justify-center p-8">
@@ -104,19 +104,19 @@ export default function SignIn() {
                 <img src={wernaLogo} alt="Werna" className="h-8 w-auto" />
                 <span className="text-2xl font-semibold tracking-tight">Werna</span>
               </div>
-              <p className="text-sm text-muted-foreground mt-1">E-posta doğrulama</p>
+              <p className="text-sm text-muted-foreground mt-1">Email verification</p>
             </div>
 
             <div className="space-y-1">
-              <h2 className="text-2xl font-semibold tracking-tight">Doğrulama Kodu</h2>
+              <h2 className="text-2xl font-semibold tracking-tight">Verification Code</h2>
               <p className="text-sm text-muted-foreground">
-                <span className="font-medium text-foreground">{email}</span> adresine kod gönderildi
+                <span className="font-medium text-foreground">{email}</span> — code sent
               </p>
             </div>
 
             <form onSubmit={handleVerify} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="code">6 Haneli Kod</Label>
+                <Label htmlFor="code">6-Digit Code</Label>
                 <Input
                   id="code"
                   type="text"
@@ -136,7 +136,7 @@ export default function SignIn() {
                 className="w-full h-11"
                 disabled={loading || code.length < 6}
               >
-                {loading ? "Doğrulanıyor..." : "Doğrula"}
+                {loading ? "Verifying..." : "Verify"}
               </Button>
             </form>
 
@@ -147,7 +147,7 @@ export default function SignIn() {
                 disabled={countdown > 0 || resending}
                 className="text-primary hover:underline disabled:opacity-40 disabled:cursor-not-allowed disabled:no-underline transition-opacity"
               >
-                {resending ? "Gönderiliyor..." : "Kodu yeniden gönder"}
+                {resending ? "Sending..." : "Resend code"}
               </button>
               {countdown > 0 && (
                 <span className="text-muted-foreground tabular-nums">
@@ -164,7 +164,7 @@ export default function SignIn() {
               <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M15 18l-6-6 6-6" />
               </svg>
-              Farklı hesapla giriş yap
+              Sign in with a different account
             </button>
           </div>
         </div>
@@ -175,25 +175,25 @@ export default function SignIn() {
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
       <AuthLeftPanel
-        heading={<>İşinizi dijital<br />dünyaya taşıyın</>}
-        description="Modern ve güvenli platformumuz ile iş süreçlerinizi optimize edin, verimliliğinizi artırın."
+        heading={<>Take your business<br />digital</>}
+        description="Optimize your workflows and boost efficiency with our modern, secure platform."
       />
 
       <div className="flex items-center justify-center p-8">
         <div className="w-full max-w-md space-y-8">
           <div className="lg:hidden text-center">
             <h1 className="text-2xl font-semibold tracking-tight">Werna</h1>
-            <p className="text-sm text-muted-foreground mt-1">Hoş geldiniz</p>
+            <p className="text-sm text-muted-foreground mt-1">Welcome</p>
           </div>
 
           <div className="space-y-1">
-            <h2 className="text-2xl font-semibold tracking-tight">Giriş yapın</h2>
-            <p className="text-sm text-muted-foreground">Hesabınıza erişmek için bilgilerinizi girin</p>
+            <h2 className="text-2xl font-semibold tracking-tight">Sign in</h2>
+            <p className="text-sm text-muted-foreground">Enter your credentials to access your account</p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">E-posta</Label>
+              <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -207,9 +207,9 @@ export default function SignIn() {
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password">Şifre</Label>
+                <Label htmlFor="password">Password</Label>
                 <Link to="/forgot-password" className="text-xs text-primary hover:underline">
-                  Şifremi unuttum
+                  Forgot password?
                 </Link>
               </div>
               <PasswordInput
@@ -230,12 +230,12 @@ export default function SignIn() {
                 onChange={(e) => setRememberMe(e.target.checked)}
               />
               <Label htmlFor="rememberMe" className="text-sm font-normal cursor-pointer">
-                Beni hatırla
+                Remember me
               </Label>
             </div>
 
             <Button type="submit" className="w-full h-11" disabled={loading}>
-              {loading ? "Giriş yapılıyor..." : "Giriş Yap"}
+              {loading ? "Signing in..." : "Sign In"}
             </Button>
           </form>
 
@@ -244,7 +244,7 @@ export default function SignIn() {
               <span className="w-full border-t" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">veya</span>
+              <span className="bg-background px-2 text-muted-foreground">or</span>
             </div>
           </div>
 
@@ -267,9 +267,9 @@ export default function SignIn() {
           </div>
 
           <p className="text-center text-sm text-muted-foreground">
-            Hesabınız yok mu?{" "}
+            Don't have an account?{" "}
             <Link to="/sign-up" className="text-primary font-medium hover:underline">
-              Kayıt olun
+              Sign up
             </Link>
           </p>
         </div>

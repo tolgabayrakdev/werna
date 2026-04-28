@@ -59,17 +59,17 @@ const TYPE_CONFIG: Record<
   string,
   { label: string; icon: typeof MessageSquare; color: string; bg: string; fill: string }
 > = {
-  complaint: { label: "Şikayet", icon: AlertCircle, color: "text-red-500", bg: "bg-red-500/10", fill: "#ef4444" },
-  suggestion: { label: "Öneri", icon: Lightbulb, color: "text-amber-500", bg: "bg-amber-500/10", fill: "#f59e0b" },
-  request: { label: "İstek", icon: MessageSquare, color: "text-blue-500", bg: "bg-blue-500/10", fill: "#3b82f6" },
-  compliment: { label: "Tebrik", icon: ThumbsUp, color: "text-emerald-500", bg: "bg-emerald-500/10", fill: "#10b981" },
+  complaint: { label: "Complaint", icon: AlertCircle, color: "text-red-500", bg: "bg-red-500/10", fill: "#ef4444" },
+  suggestion: { label: "Suggestion", icon: Lightbulb, color: "text-amber-500", bg: "bg-amber-500/10", fill: "#f59e0b" },
+  request: { label: "Request", icon: MessageSquare, color: "text-blue-500", bg: "bg-blue-500/10", fill: "#3b82f6" },
+  compliment: { label: "Compliment", icon: ThumbsUp, color: "text-emerald-500", bg: "bg-emerald-500/10", fill: "#10b981" },
 }
 
 const STAT_CONFIGS = [
-  { key: "total",  label: "Toplam", sub: "Tüm zamanlar", icon: Star,       accent: "text-violet-500", accentBg: "bg-violet-500/10" },
-  { key: "week",   label: "Bu Hafta", sub: "Son 7 gün",  icon: Activity,   accent: "text-blue-500",   accentBg: "bg-blue-500/10"   },
-  { key: "month",  label: "Bu Ay",    sub: "",            icon: Calendar,   accent: "text-amber-500",  accentBg: "bg-amber-500/10"  },
-  { key: "year",   label: "Bu Yıl",   sub: "",            icon: TrendingUp, accent: "text-emerald-500",accentBg: "bg-emerald-500/10"},
+  { key: "total",  label: "Total", sub: "All time", icon: Star,       accent: "text-violet-500", accentBg: "bg-violet-500/10" },
+  { key: "week",   label: "This Week", sub: "Last 7 days",  icon: Activity,   accent: "text-blue-500",   accentBg: "bg-blue-500/10"   },
+  { key: "month",  label: "This Month",    sub: "",            icon: Calendar,   accent: "text-amber-500",  accentBg: "bg-amber-500/10"  },
+  { key: "year",   label: "This Year",   sub: "",            icon: TrendingUp, accent: "text-emerald-500",accentBg: "bg-emerald-500/10"},
 ]
 
 function sumCounts(rows: TypeCount[]) {
@@ -87,10 +87,10 @@ function formatDate(dateStr: string) {
   const d = new Date(dateStr)
   const now = new Date()
   const diff = Math.floor((now.getTime() - d.getTime()) / 1000)
-  if (diff < 60) return "Az önce"
-  if (diff < 3600) return `${Math.floor(diff / 60)} dk önce`
-  if (diff < 86400) return `${Math.floor(diff / 3600)} saat önce`
-  return d.toLocaleDateString("tr-TR", { day: "numeric", month: "short" })
+  if (diff < 60) return "Just now"
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`
+  return d.toLocaleDateString("en-US", { day: "numeric", month: "short" })
 }
 
 export default function AppIndex() {
@@ -133,9 +133,9 @@ export default function AppIndex() {
 
   const satisfactionLevel =
     satisfactionScore === null ? null
-    : satisfactionScore >= 70 ? { label: "Mükemmel",        color: "text-emerald-600", barColor: "#10b981" }
-    : satisfactionScore >= 45 ? { label: "Orta Düzey",       color: "text-amber-600",  barColor: "#f59e0b" }
-    :                           { label: "Dikkat Gerekiyor", color: "text-red-600",    barColor: "#ef4444" }
+    : satisfactionScore >= 70 ? { label: "Excellent",        color: "text-emerald-600", barColor: "#10b981" }
+    : satisfactionScore >= 45 ? { label: "Moderate",       color: "text-amber-600",  barColor: "#f59e0b" }
+    :                           { label: "Needs Attention", color: "text-red-600",    barColor: "#ef4444" }
 
   const monthlyChartData = (() => {
     if (!analytics) return []
@@ -147,7 +147,7 @@ export default function AppIndex() {
       .sort(([a], [b]) => a.localeCompare(b))
       .slice(-6)
       .map(([month, total]) => ({
-        name: new Date(month + "-01").toLocaleDateString("tr-TR", { month: "short", year: "2-digit" }),
+        name: new Date(month + "-01").toLocaleDateString("en-US", { month: "short", year: "2-digit" }),
         total,
       }))
   })()
@@ -157,9 +157,9 @@ export default function AppIndex() {
     : 0
 
   const statValues: Record<string, { value: number; trend: { value: number; isUp: boolean }; sub: string }> = {
-    total: { value: totalAll,   trend: getTrend(totalMonth, totalLastMonth),            sub: "Tüm zamanlar" },
-    week:  { value: totalWeek,  trend: getTrend(totalWeek, totalMonth - totalWeek),     sub: "Son 7 gün" },
-    month: { value: totalMonth, trend: getTrend(totalMonth, totalLastMonth),            sub: new Date().toLocaleDateString("tr-TR", { month: "long" }) },
+    total: { value: totalAll,   trend: getTrend(totalMonth, totalLastMonth),            sub: "All time" },
+    week:  { value: totalWeek,  trend: getTrend(totalWeek, totalMonth - totalWeek),     sub: "Last 7 days" },
+    month: { value: totalMonth, trend: getTrend(totalMonth, totalLastMonth),            sub: new Date().toLocaleDateString("en-US", { month: "long" }) },
     year:  { value: totalYear,  trend: getTrend(totalYear, totalAll - totalYear),       sub: new Date().getFullYear().toString() },
   }
 
@@ -180,15 +180,15 @@ export default function AppIndex() {
       <div className="flex items-end justify-between">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-1">
-            Genel Bakış
+            Overview
           </p>
           <h1 className="text-2xl font-bold tracking-tight">
-            Hoş geldiniz{user?.name ? `, ${user.name}` : ""}
+            Welcome{user?.name ? `, ${user.name}` : ""}
           </h1>
         </div>
         <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground bg-muted/60 rounded-lg px-3 py-1.5">
           <Clock className="size-3.5" />
-          {new Date().toLocaleDateString("tr-TR", { weekday: "long", day: "numeric", month: "long" })}
+          {new Date().toLocaleDateString("en-US", { weekday: "long", day: "numeric", month: "long" })}
         </div>
       </div>
 
@@ -203,7 +203,7 @@ export default function AppIndex() {
           )}
         />
         <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">
-          Memnuniyet Skoru
+          Satisfaction Score
         </span>
         {loading ? (
           <Skeleton className="h-5 w-16" />
@@ -232,11 +232,11 @@ export default function AppIndex() {
 
         <div className="hidden sm:flex items-center gap-3 text-xs text-muted-foreground shrink-0">
           <span className="text-emerald-600 font-medium tabular-nums">
-            {loading ? "—" : `${totalCompliments.toLocaleString("tr-TR")} tebrik`}
+            {loading ? "—" : `${totalCompliments.toLocaleString()} compliments`}
           </span>
           <span className="text-border">·</span>
           <span className="text-red-500 font-medium tabular-nums">
-            {loading ? "—" : `${totalComplaints.toLocaleString("tr-TR")} şikayet`}
+            {loading ? "—" : `${totalComplaints.toLocaleString()} complaints`}
           </span>
         </div>
       </div>
@@ -258,7 +258,7 @@ export default function AppIndex() {
                   {loading ? (
                     <Skeleton className="h-8 w-16 inline-block" />
                   ) : (
-                    sv.value.toLocaleString("tr-TR")
+                    sv.value.toLocaleString("en-US")
                   )}
                 </p>
                 <div className="flex items-center gap-1.5 mt-1">
@@ -289,14 +289,14 @@ export default function AppIndex() {
           {/* Monthly Trend */}
           <Card>
             <CardHeader className="pb-2 pt-4 px-5">
-              <CardTitle className="text-sm font-semibold">Aylık Geri Bildirim Trendi</CardTitle>
-              <CardDescription className="text-xs">Son 6 aylık toplam geri bildirim sayısı</CardDescription>
+              <CardTitle className="text-sm font-semibold">Monthly Feedback Trend</CardTitle>
+              <CardDescription className="text-xs">Total feedback count for the last 6 months</CardDescription>
             </CardHeader>
             <CardContent className="px-5 pb-4">
               {loading ? (
                 <Skeleton className="h-56 w-full" />
               ) : monthlyChartData.length === 0 ? (
-                <div className="h-56 flex items-center justify-center text-muted-foreground text-sm">Henüz veri yok</div>
+                <div className="h-56 flex items-center justify-center text-muted-foreground text-sm">No data yet</div>
               ) : (
                 <div className="h-56">
                   <ResponsiveContainer width="100%" height="100%">
@@ -310,7 +310,7 @@ export default function AppIndex() {
                       <CartesianGrid strokeDasharray="3 3" vertical={false} />
                       <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11 }} dy={8} />
                       <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11 }} allowDecimals={false} />
-                      <ReTooltip formatter={(v) => [`${v} geri bildirim`, "Toplam"]} />
+                      <ReTooltip formatter={(v) => [`${v} feedback`, "Total"]} />
                       <Area type="monotone" dataKey="total" strokeWidth={2} fillOpacity={1} fill="url(#colorTotal)" />
                     </AreaChart>
                   </ResponsiveContainer>
@@ -323,14 +323,14 @@ export default function AppIndex() {
           <Card>
             <CardHeader className="pb-2 pt-4 px-5 flex flex-row items-center justify-between">
               <div>
-                <CardTitle className="text-sm font-semibold">Son Geri Bildirimler</CardTitle>
-                <CardDescription className="text-xs">En son alınan geri bildirimler</CardDescription>
+                <CardTitle className="text-sm font-semibold">Recent Feedback</CardTitle>
+                <CardDescription className="text-xs">Latest feedback received</CardDescription>
               </div>
               <Link
                 to="/feedbacks"
                 className="text-xs font-medium text-primary hover:underline inline-flex items-center gap-0.5 shrink-0"
               >
-                Tümünü gör <ArrowUpRight className="size-3" />
+                View all <ArrowUpRight className="size-3" />
               </Link>
             </CardHeader>
             <CardContent className="px-5 pb-4 space-y-0.5">
@@ -346,7 +346,7 @@ export default function AppIndex() {
                 ))
               ) : recentFeedbacks.length === 0 ? (
                 <div className="py-6 text-center text-muted-foreground text-sm">
-                  Henüz geri bildirim alınmamış
+                  No feedback received yet
                 </div>
               ) : (
                 recentFeedbacks.map((fb, idx) => {
@@ -381,8 +381,8 @@ export default function AppIndex() {
           {/* Donut Chart */}
           <Card>
             <CardHeader className="pb-2 pt-4 px-5">
-              <CardTitle className="text-sm font-semibold">Tür Dağılımı</CardTitle>
-              <CardDescription className="text-xs">Tüm zamanların geri bildirim türleri</CardDescription>
+              <CardTitle className="text-sm font-semibold">Type Distribution</CardTitle>
+              <CardDescription className="text-xs">All-time feedback types</CardDescription>
             </CardHeader>
             <CardContent className="px-5 pb-4">
               {loading ? (
@@ -390,7 +390,7 @@ export default function AppIndex() {
                   <Skeleton className="h-40 w-40 rounded-full" />
                 </div>
               ) : pieData.length === 0 ? (
-                <div className="h-52 flex items-center justify-center text-muted-foreground text-sm">Henüz veri yok</div>
+                <div className="h-52 flex items-center justify-center text-muted-foreground text-sm">No data yet</div>
               ) : (
                 <div className="h-52">
                   <ResponsiveContainer width="100%" height="100%">
@@ -398,7 +398,7 @@ export default function AppIndex() {
                       <Pie data={pieData} cx="50%" cy="50%" innerRadius={50} outerRadius={76} paddingAngle={3} dataKey="value" stroke="none">
                         {pieData.map((entry, i) => <Cell key={i} fill={entry.fill} />)}
                       </Pie>
-                      <ReTooltip formatter={(v, name) => [`${v} adet`, name]} />
+                      <ReTooltip formatter={(v, name) => [`${v} items`, name]} />
                       <Legend verticalAlign="bottom" height={28} iconType="circle" iconSize={7} wrapperStyle={{ fontSize: 11 }} />
                     </PieChart>
                   </ResponsiveContainer>
@@ -412,12 +412,12 @@ export default function AppIndex() {
             <CardHeader className="pb-2 pt-4 px-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-sm font-semibold">Bu Yıl Özeti</CardTitle>
-                  <CardDescription className="text-xs">{new Date().getFullYear()} yılı dağılımı</CardDescription>
+                  <CardTitle className="text-sm font-semibold">This Year Summary</CardTitle>
+                  <CardDescription className="text-xs">{new Date().getFullYear()} breakdown</CardDescription>
                 </div>
                 {!loading && totalYearSum > 0 && (
                   <span className="text-xs font-semibold text-muted-foreground bg-muted px-2 py-0.5 rounded-md tabular-nums">
-                    {totalYearSum.toLocaleString("tr-TR")}
+                    {totalYearSum.toLocaleString("en-US")}
                   </span>
                 )}
               </div>
@@ -433,7 +433,7 @@ export default function AppIndex() {
                   ))}
                 </div>
               ) : totalYearSum === 0 ? (
-                <p className="text-sm text-muted-foreground py-4 text-center">Henüz bu yıl geri bildirim yok</p>
+                <p className="text-sm text-muted-foreground py-4 text-center">No feedback this year yet</p>
               ) : (
                 <div className="space-y-3.5">
                   {Object.entries(TYPE_CONFIG).map(([type, cfg]) => {
@@ -460,8 +460,8 @@ export default function AppIndex() {
                   })}
                   <Separator className="mt-1" />
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium">Toplam</span>
-                    <span className="text-xs font-bold tabular-nums">{totalYearSum.toLocaleString("tr-TR")}</span>
+                    <span className="text-xs font-medium">Total</span>
+                    <span className="text-xs font-bold tabular-nums">{totalYearSum.toLocaleString("en-US")}</span>
                   </div>
                 </div>
               )}

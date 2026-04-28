@@ -33,7 +33,7 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
       window.dispatchEvent(new CustomEvent("auth:session-expired"))
     }
     if (res.status === 429) {
-      toast.error("Çok fazla istek gönderildi. Lütfen bir süre bekleyin.")
+      toast.error("Too many requests. Please wait a moment.")
     }
     throw new ApiClientError(res.status, data)
   }

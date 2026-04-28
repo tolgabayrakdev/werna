@@ -127,8 +127,8 @@ export default function Onboarding() {
       setStep("success")
       triggerConfetti()
     } catch (error) {
-      const message = error instanceof ApiClientError ? error.data.message : "Bir hata oluştu"
-      toast.error(message || "Bilgiler kaydedilemedi")
+      const message = error instanceof ApiClientError ? error.data.message : "An error occurred"
+      toast.error(message || "Could not save information")
     } finally {
       setSaving(false)
     }
@@ -139,7 +139,7 @@ export default function Onboarding() {
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-3">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-sm text-muted-foreground">Yükleniyor...</p>
+          <p className="text-sm text-muted-foreground">Loading...</p>
         </div>
       </div>
     )
@@ -165,22 +165,22 @@ export default function Onboarding() {
         <div className="space-y-2 mb-8">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Building2 className="size-4" />
-            <span>İşletme Kurulumu</span>
+            <span>Business Setup</span>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight">İşletmenizi Tanıyalım</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Let's Get to Know Your Business</h1>
           <p className="text-muted-foreground">
-            Platformu size özel hale getirmek için işletme bilgilerinizi girin. Bu adımı tamamlamadan dashboard'a erişemezsiniz.
+            Enter your business information to personalize the platform. You cannot access the dashboard until this step is completed.
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid gap-6 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="sector">Sektör</Label>
+              <Label htmlFor="sector">Sector</Label>
               <Input
                 id="sector"
                 name="sector"
-                placeholder="Örn: Restoran, Mağaza, Teknoloji"
+                placeholder="e.g. Restaurant, Retail, Technology"
                 className="h-11"
                 value={formData.sector}
                 onChange={handleChange}
@@ -191,14 +191,14 @@ export default function Onboarding() {
               <Label htmlFor="phone">
                 <span className="flex items-center gap-1.5">
                   <Phone className="size-3.5" />
-                  Telefon
+                  Phone
                 </span>
               </Label>
               <Input
                 id="phone"
                 name="phone"
                 type="tel"
-                placeholder="+90 5xx xxx xx xx"
+                placeholder="+1 xxx xxx xxxx"
                 className="h-11"
                 value={formData.phone}
                 onChange={handleChange}
@@ -206,11 +206,11 @@ export default function Onboarding() {
             </div>
 
             <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="description">Açıklama</Label>
+              <Label htmlFor="description">Description</Label>
               <Textarea
                 id="description"
                 name="description"
-                placeholder="İşletmenizi kısaca tanıtın"
+                placeholder="Briefly introduce your business"
                 rows={3}
                 value={formData.description}
                 onChange={handleChange}
@@ -221,14 +221,14 @@ export default function Onboarding() {
               <Label htmlFor="website">
                 <span className="flex items-center gap-1.5">
                   <Globe className="size-3.5" />
-                  Web Sitesi
+                  Website
                 </span>
               </Label>
               <Input
                 id="website"
                 name="website"
                 type="url"
-                placeholder="https://ornek.com"
+                placeholder="https://example.com"
                 className="h-11"
                 value={formData.website}
                 onChange={handleChange}
@@ -236,11 +236,11 @@ export default function Onboarding() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="country">Ülke</Label>
+              <Label htmlFor="country">Country</Label>
               <Input
                 id="country"
                 name="country"
-                placeholder="Türkiye"
+                placeholder="United States"
                 className="h-11"
                 value={formData.country}
                 onChange={handleChange}
@@ -248,11 +248,11 @@ export default function Onboarding() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="city">Şehir</Label>
+              <Label htmlFor="city">City</Label>
               <Input
                 id="city"
                 name="city"
-                placeholder="İstanbul"
+                placeholder="New York"
                 className="h-11"
                 value={formData.city}
                 onChange={handleChange}
@@ -263,13 +263,13 @@ export default function Onboarding() {
               <Label htmlFor="address">
                 <span className="flex items-center gap-1.5">
                   <MapPin className="size-3.5" />
-                  Adres
+                  Address
                 </span>
               </Label>
               <Input
                 id="address"
                 name="address"
-                placeholder="Cadde, Sokak, No"
+                placeholder="Street, Avenue, No"
                 className="h-11"
                 value={formData.address}
                 onChange={handleChange}
@@ -279,7 +279,7 @@ export default function Onboarding() {
 
           <div className="pt-2">
             <Button type="submit" className="h-11 px-6" disabled={saving}>
-              {saving ? "Kaydediliyor..." : "Bitir"}
+              {saving ? "Saving..." : "Finish"}
               {!saving && <ArrowRight className="ml-2 size-4" />}
             </Button>
           </div>
@@ -307,11 +307,11 @@ function SuccessScreen({ navigate }: { navigate: ReturnType<typeof useNavigate> 
           <div className="space-y-2">
             <div className="flex items-center justify-center gap-2">
               <Sparkles className="size-5 text-amber-500" />
-              <h1 className="text-3xl font-bold tracking-tight">Artık Hazırsınız!</h1>
+              <h1 className="text-3xl font-bold tracking-tight">You're All Set!</h1>
               <Sparkles className="size-5 text-amber-500" />
             </div>
             <p className="text-muted-foreground max-w-sm mx-auto">
-              İşletme bilgileriniz başarıyla kaydedildi. Dashboard'a yönlendiriliyorsunuz...
+              Your business information has been saved successfully. Redirecting to dashboard...
             </p>
           </div>
         </div>
