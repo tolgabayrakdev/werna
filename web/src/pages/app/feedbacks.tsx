@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useMemo, Fragment } from "react"
+import { useEffect, useState, useMemo, Fragment } from "react"
 import { apiClient } from "@/lib/api-client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -39,6 +39,8 @@ import {
   SortDesc,
   SortAsc,
   X,
+  FileDown,
+  FileText,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import {
@@ -134,24 +136,22 @@ export default function FeedbacksPage() {
   const [sortDir, setSortDir] = useState<"desc" | "asc">("desc")
   const [expandedId, setExpandedId] = useState<string | null>(null)
 
-  const load = useCallback((t: string, p: number, lim: number) => {
-    setLoading(true)
-    const params = new URLSearchParams({ page: String(p), limit: String(lim) })
-    if (t !== "all") params.set("type", t)
+  useEffect(() => {
+    let cancelled = false
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) })
+    if (type !== "all") params.set("type", type)
     apiClient
       .get<FeedbacksRes>(`/api/feedback?${params}`)
       .then((res) => {
+        if (cancelled) return
         setFeedbacks(res.data)
         setPagination(res.pagination)
         setExpandedId(null)
       })
-      .catch(() => toast.error("Could not load feedback"))
-      .finally(() => setLoading(false))
-  }, [])
-
-  useEffect(() => {
-    load(type, page, limit)
-  }, [load, type, page, limit])
+      .catch(() => { if (!cancelled) toast.error("Could not load feedback") })
+      .finally(() => { if (!cancelled) setLoading(false) })
+    return () => { cancelled = true }
+  }, [type, page, limit])
 
   useEffect(() => {
     apiClient
@@ -161,13 +161,20 @@ export default function FeedbacksPage() {
   }, [])
 
   const handleTypeChange = (t: string) => {
+    setLoading(true)
     setType(t)
     setPage(1)
   }
 
   const handleLimitChange = (v: string) => {
+    setLoading(true)
     setLimit(Number(v))
     setPage(1)
+  }
+
+  const handlePageChange = (p: number) => {
+    setLoading(true)
+    setPage(p)
   }
 
   const hasActiveFilters = search.trim() !== "" || dateRange !== "all" || sortDir !== "desc"
@@ -258,6 +265,127 @@ export default function FeedbacksPage() {
 
   const clientFilterActive = search.trim() !== "" || dateRange !== "all"
 
+  const exportCSV = () => {
+    const headers = ["Type", "Message", "Link", "Email", "Date", "Time"]
+    const rows = displayed.map((fb) => {
+      const dt = formatDateTime(fb.created_at)
+      return [
+        fb.type,
+        `"${fb.message.replace(/"/g, '""')}"`,
+        `"${fb.link_name.replace(/"/g, '""')}"`,
+        fb.customer_email,
+        dt.date,
+        dt.time,
+      ].join(",")
+    })
+    const csv = [headers.join(","), ...rows].join("\n")
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = `feedbacks-${new Date().toISOString().split("T")[0]}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  const exportPDF = () => {
+    const date = new Date().toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric" })
+    const typeRows = Object.entries(TYPE_CONFIG)
+      .map(([t, cfg]) => {
+        const count = analytics ? getCount(analytics.allTime, t) : 0
+        const pct = totalAll > 0 ? Math.round((count / totalAll) * 100) : 0
+        return `<tr><td>${cfg.label}</td><td>${count.toLocaleString("en-US")}</td><td>${pct}%</td></tr>`
+      })
+      .join("")
+
+    const feedbackRows = displayed
+      .map((fb) => {
+        const dt = formatDateTime(fb.created_at)
+        const msg = fb.message.length > 120 ? fb.message.slice(0, 120) + "…" : fb.message
+        return `<tr>
+          <td><span class="badge badge-${fb.type}">${TYPE_CONFIG[fb.type].label}</span></td>
+          <td>${msg.replace(/</g, "&lt;")}</td>
+          <td>${fb.link_name.replace(/</g, "&lt;")}</td>
+          <td>${fb.customer_email}</td>
+          <td>${dt.date}</td>
+        </tr>`
+      })
+      .join("")
+
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Feedback Report — ${date}</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 12px; color: #111; padding: 40px; }
+  h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  .subtitle { color: #666; font-size: 12px; margin-bottom: 32px; }
+  h2 { font-size: 13px; font-weight: 600; margin-bottom: 10px; text-transform: uppercase; letter-spacing: .05em; color: #444; }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 32px; }
+  .stat { border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px; }
+  .stat-value { font-size: 24px; font-weight: 700; line-height: 1; }
+  .stat-label { font-size: 11px; color: #777; margin-top: 4px; }
+  section { margin-bottom: 32px; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; font-size: 11px; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: .04em; padding: 8px 10px; border-bottom: 2px solid #e5e7eb; }
+  td { padding: 8px 10px; border-bottom: 1px solid #f0f0f0; vertical-align: top; font-size: 11.5px; }
+  tr:last-child td { border-bottom: none; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 10.5px; font-weight: 600; }
+  .badge-complaint  { background: #fee2e2; color: #b91c1c; }
+  .badge-suggestion { background: #fef3c7; color: #b45309; }
+  .badge-request    { background: #dbeafe; color: #1d4ed8; }
+  .badge-compliment { background: #d1fae5; color: #065f46; }
+  .footer { margin-top: 40px; padding-top: 12px; border-top: 1px solid #e5e7eb; font-size: 11px; color: #aaa; display: flex; justify-content: space-between; }
+  @media print { body { padding: 24px; } }
+</style>
+</head>
+<body>
+  <h1>Feedback Analytics Report</h1>
+  <p class="subtitle">Generated on ${date} &nbsp;·&nbsp; ${displayed.length.toLocaleString("en-US")} records</p>
+
+  <section>
+    <h2>Summary</h2>
+    <div class="stats">
+      <div class="stat"><div class="stat-value">${totalAll.toLocaleString("en-US")}</div><div class="stat-label">Total (All Time)</div></div>
+      <div class="stat"><div class="stat-value">${totalWeek.toLocaleString("en-US")}</div><div class="stat-label">This Week</div></div>
+      <div class="stat"><div class="stat-value">${totalMonth.toLocaleString("en-US")}</div><div class="stat-label">This Month</div></div>
+      <div class="stat"><div class="stat-value">${(analytics ? getCount(analytics.allTime, "compliment") : 0).toLocaleString("en-US")}</div><div class="stat-label">Compliments</div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Type Distribution (All Time)</h2>
+    <table>
+      <thead><tr><th>Type</th><th>Count</th><th>Share</th></tr></thead>
+      <tbody>${typeRows}</tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Feedback List</h2>
+    <table>
+      <thead><tr><th>Type</th><th>Message</th><th>Link</th><th>Email</th><th>Date</th></tr></thead>
+      <tbody>${feedbackRows}</tbody>
+    </table>
+  </section>
+
+  <div class="footer">
+    <span>Werna — werna.app</span>
+    <span>${date}</span>
+  </div>
+</body>
+</html>`
+
+    const win = window.open("", "_blank")
+    if (!win) return
+    win.document.write(html)
+    win.document.close()
+    win.focus()
+    setTimeout(() => { win.print() }, 400)
+  }
+
   return (
     <div className="p-6 lg:p-8 space-y-6 max-w-6xl mx-auto">
       {/* Header */}
@@ -268,9 +396,31 @@ export default function FeedbacksPage() {
             Verified feedback from your customers
           </p>
         </div>
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/60 rounded-lg px-3 py-1.5">
-          <BarChart3 className="size-3.5" />
-          Total {pagination.total.toLocaleString()} records
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/60 rounded-lg px-3 py-1.5">
+            <BarChart3 className="size-3.5" />
+            Total {pagination.total.toLocaleString("en-US")} records
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 gap-1.5 text-xs"
+            onClick={exportCSV}
+            disabled={displayed.length === 0}
+          >
+            <FileDown className="size-3.5" />
+            CSV
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 gap-1.5 text-xs"
+            onClick={exportPDF}
+            disabled={displayed.length === 0}
+          >
+            <FileText className="size-3.5" />
+            PDF
+          </Button>
         </div>
       </div>
 
@@ -667,7 +817,7 @@ export default function FeedbacksPage() {
               size="icon"
               className="size-8"
               disabled={page <= 1}
-              onClick={() => setPage((p) => p - 1)}
+              onClick={() => handlePageChange(page - 1)}
             >
               <ChevronLeft className="size-4" />
             </Button>
@@ -696,7 +846,7 @@ export default function FeedbacksPage() {
                     variant={page === p ? "default" : "outline"}
                     size="icon"
                     className="size-8 text-xs"
-                    onClick={() => setPage(p)}
+                    onClick={() => handlePageChange(p)}
                   >
                     {p}
                   </Button>
@@ -707,7 +857,7 @@ export default function FeedbacksPage() {
               size="icon"
               className="size-8"
               disabled={page >= pagination.totalPages}
-              onClick={() => setPage((p) => p + 1)}
+              onClick={() => handlePageChange(page + 1)}
             >
               <ChevronRight className="size-4" />
             </Button>
